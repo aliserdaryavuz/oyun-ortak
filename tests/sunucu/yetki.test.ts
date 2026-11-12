@@ -9,8 +9,8 @@ const IZINLI = {
   anon: ["ad_anahtari", "ad_bicimi", "ad_uygun", "bugun", "iso_hafta", "siralama"],
   authenticated: [
     "ad_anahtari", "ad_bicimi", "ad_degistir", "ad_uygun", "baglama_odulu_al", "ben", "bugun", "devir_kodu_al",
-    "hesabi_sil", "hesap_devral", "hesap_ozeti", "iso_hafta", "kayit_oku", "kayit_yaz", "lig_durumu", "otomatik_ad",
-    "oyun_verisini_sil", "siralama", "yas_onayla",
+    "hakki_var", "haklarim", "hesabi_sil", "hesap_devral", "hesap_ozeti", "iso_hafta", "kayit_oku", "kayit_yaz",
+    "lig_durumu", "odul_kaydet", "odullerim", "otomatik_ad", "oyun_verisini_sil", "siralama", "yas_onayla",
   ],
 };
 
@@ -23,7 +23,7 @@ for (const rol of ["anon", "authenticated"] as const) {
     assert.deepEqual(satirlar.map((r) => r.ad), IZINLI[rol]);
   });
 
-  test(`${rol}: ortak tablolarından yalnız oyunlar okunabilir, hiçbirine yazılamaz`, async () => {
+  test(`${rol}: ortak tablolarından yalnız oyunlar ve urunler okunabilir, hiçbirine yazılamaz`, async () => {
     const satirlar = await sql`
       select c.relname as ad, has_table_privilege(${rol}, c.oid, 'select') as oku,
              has_table_privilege(${rol}, c.oid, 'insert,update,delete') as yaz
@@ -31,7 +31,7 @@ for (const rol of ["anon", "authenticated"] as const) {
       where n.nspname = 'ortak' and c.relkind in ('r', 'v', 'm')`;
     for (const s of satirlar) {
       assert.equal(s.yaz, false, `${s.ad} yazılabilir`);
-      assert.equal(s.oku, s.ad === "oyunlar", `${s.ad} okuma`);
+      assert.equal(s.oku, ["oyunlar", "urunler"].includes(s.ad), `${s.ad} okuma`);
     }
   });
 }

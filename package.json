@@ -1,7 +1,7 @@
 {
   "name": "@oyun/ortak",
   "version": "0.1.0",
-  "description": "Serdar'ın mobil oyunlarının ortak kütüphanesi: kayit, hesap, siralama, olcum.",
+  "description": "Serdar'ın mobil oyunlarının ortak kütüphanesi: kayit, hesap, siralama, olcum, odeme, etkinlik, geri-bildirim, bildirim.",
   "type": "module",
   "license": "UNLICENSED",
   "engines": {
@@ -27,6 +27,22 @@
     "./siralama": {
       "types": "./dist/siralama/index.d.ts",
       "default": "./dist/siralama/index.js"
+    },
+    "./odeme": {
+      "types": "./dist/odeme/index.d.ts",
+      "default": "./dist/odeme/index.js"
+    },
+    "./etkinlik": {
+      "types": "./dist/etkinlik/index.d.ts",
+      "default": "./dist/etkinlik/index.js"
+    },
+    "./geri-bildirim": {
+      "types": "./dist/geri-bildirim/index.d.ts",
+      "default": "./dist/geri-bildirim/index.js"
+    },
+    "./bildirim": {
+      "types": "./dist/bildirim/index.d.ts",
+      "default": "./dist/bildirim/index.js"
     }
   },
   "scripts": {

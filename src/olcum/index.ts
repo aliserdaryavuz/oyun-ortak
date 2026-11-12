@@ -21,6 +21,7 @@ export const CEKIRDEK_OLAYLAR = [
   "satin_alma_bitir",
   "satin_alma_iptal",
   "hata",
+  "geri_bildirim",
 ] as const;
 
 export type Ozellikler = Record<string, string | number | boolean | null>;

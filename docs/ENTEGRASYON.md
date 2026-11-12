@@ -28,7 +28,11 @@ Okuyucu: oyun deposunda çalışan oturum (Aşama 1'e gelmiş oyun). Önce `_ort
 | Haftalık lig, kademe | `lig()`; ayarlar `ortak.oyunlar.ayarlar.lig`; kapanış pg_cron |
 | Olay kaydı (Neon, D1, Supabase tablosu) | `@oyun/ortak/olcum` → PostHog (AB); oyuna özgü olaylar `uzantiOlaylar` |
 | Hesap silme | `buOyundanSil()` ve `tamamenSil()`; web sayfası da ikisini sunar |
-| Ödeme, etkinlik, geri bildirim, bildirim | v0.2 |
+| Satın alma, "paket açık mı" kilidi, geri yükleme | `@oyun/ortak/odeme` (RevenueCat; aşağıda "Ödeme") |
+| Ücretli dosyaların herkese açık durması | `korumali` kovası + `odeme.korumaliIndir(hak, dosya)` |
+| Etkinlik takvimi, sezon, albüm ödülleri | `@oyun/ortak/etkinlik` (takvim opak; ödül eşitleme) |
+| Kapalı test anketi | `@oyun/ortak/geri-bildirim` (karar + ölçüme gönderim; arayüz oyunda) |
+| Günlük hatırlatma | `@oyun/ortak/bildirim` (yerel bildirim; sunucu push sonra) |
 
 ## Kurulum
 
@@ -98,6 +102,73 @@ Expo (Beat Greedy): depo, AsyncStorage'dan `{ oku: getItem, yaz: setItem, sil: r
   2. Girişten sonra `bulutKaydi().birlestir(yerel, birlestir)` çağrılır ve dönen `ozet` oyuncuya gösterilir.
   3. Ardından `baglamaOdulu()` çağrılır.
 - Google ve Apple düğmeleri öne çıkarılır; e-posta kodu "başka yol" altında durur (kesin karar).
+
+## v0.2 paketleri
+
+### Ödeme (`@oyun/ortak/odeme`)
+
+Kurulum, oyun başına bir kez:
+1. **Bu depoda göç:** ürün → hak eşlemesi. Örnek: `insert into ortak.urunler values ('halka_paket_tam', 'halka', 'paket_tam');`
+2. **RevenueCat:** projeye oyunun uygulamasını (Play/App Store) ekle. Entitlement kimliği = haktaki ad (`paket_tam`), ürün kimliği = mağaza ürün kimliği.
+3. **RevenueCat → Integrations → Webhooks:**
+   - Adres: `https://qzxchutjzhyzzaoxzroh.supabase.co/functions/v1/odeme-webhook`
+   - Authorization header: `C:\Users\alise\.oyun-ortak\odeme-webhook.env` dosyasındaki değer. Bütün oyunlar aynı webhook'u kullanır.
+4. **Oyunda:** RevenueCat eklentisini `Magaza` arayüzüne saran birkaç satır.
+
+```ts
+import { Purchases } from "@revenuecat/purchases-capacitor";
+const ent = (c: CustomerInfo) => Object.keys(c.entitlements.active);
+const magaza: Magaza = {
+  kullaniciAta: async (id) => void (await Purchases.logIn({ appUserID: id })),
+  haklar: async () => ent((await Purchases.getCustomerInfo()).customerInfo),
+  satinAl: async (urun) => {
+    const { products } = await Purchases.getProducts({ productIdentifiers: [urun], type: PRODUCT_CATEGORY.NON_SUBSCRIPTION });
+    return ent((await Purchases.purchaseStoreProduct({ product: products[0]! })).customerInfo);
+  },
+  geriYukle: async () => ent((await Purchases.restorePurchases()).customerInfo),
+};
+export const odeme = odemeBaslat({ supabase, oyunId, depo, magaza: Capacitor.isNativePlatform() ? magaza : undefined });
+```
+
+Kullanım:
+- **Açılışta** `await odeme.hakVar("paket_tam")` (önbellekten, ağ beklemez), ardından `odeme.yenile()`.
+- **Satın alma:** `odeme.satinAl("halka_paket_tam")`. Web'de `web_satis_yok` hatası verir.
+- **Geri yükleme:** `odeme.geriYukle()`.
+
+Davranış:
+- **Hak süresizdir:** ağsız açılışta da açık kalır.
+- **İade:** RevenueCat iadeyi bildirince sunucuda `iade` olur; bir sonraki `yenile()` hakkı düşürür. Mağaza hâlâ veriyorsa (aile paylaşımı) hak kalır.
+- **Web:** hesapta hak varsa görünür, satın alma yapılamaz.
+- **Korumalı içerik (HK-8):**
+  - Ücretli dosyalar `korumali/<oyun>/<hak>/...` yoluna servis anahtarıyla yüklenir; yükleme betiği oyun deposundadır.
+  - Oyun dosyayı `odeme.korumaliIndir("paket_tam", "zor-001.json")` ile alır.
+  - Hakkı olmayan hesap indiremez. İnen dosyayı çevrimdışı için saklamak oyunun işidir.
+
+### Etkinlik (`@oyun/ortak/etkinlik`)
+
+- **Takvim:** oyunun Pages sitesinde statik JSON. Örnek: `public/etkinlik/takvim.json` (HK-7, EN-8).
+- **Kurulum:** `etkinlikBaslat({ oyunId, adres, depo, dogrula, supabase })`. `dogrula`, ham JSON'dan geçerli takvimi döner ve geçmeyen kayıtları atar (KM-8).
+- **Okuma:** `takvim()` ağ yoksa son geçerli takvimi verir. Yardımcılar: `suren(liste)`, `yaklasan(liste)`, `kalanSure(oge)`. Hepsi İstanbul günüyle çalışır, öğelerde `baslangic`/`bitis` (YYYY-MM-DD, dahil) beklenir.
+- **Ödül:** `odulKazan("rozet-usta", "usta-2026-11")` cihazda hemen kaydeder; oturum varsa sunucuya bir kez yazar.
+- **Eşitleme:** açılışta ve girişten sonra `esitle()`; başka cihazda kazanılanları getirir. Ödül kimliği `^[a-z0-9_:.-]{1,64}$`.
+- **Sıralama ödülü (HK-3, "ilk %10"):** `select ortak.siralama_odulu_ver('halka', 'etkinlik', '<etkinlik_id>', '<odul>', 0.1)`. Oyunun cron işi ya da elle çalıştırılır; eşitler dahil.
+
+### Geri bildirim (`@oyun/ortak/geri-bildirim`)
+
+- **Kurulum:** `geriBildirimBaslat({ depo, olcum, anketler, etkin })`. `etkin` kapalı test sürümünde `true` olur; ör. `testKodu(cihaz) != null` ya da derleme bayrağı.
+- **Akış:**
+  1. Oyun olayları `say("cozum")` ile sayılır.
+  2. Uygun anda `siradaki()` anket döner. Oyun anketi kendi arayüzüyle gösterir ve `gosterildi(id)` çağırır.
+  3. Cevaplar `cevapla(id, cevaplar)` ile verilir.
+- **Koşul:** `{ sayac: { ad: "cozum", esik: 5 } }` ve/veya `{ gun: 7 }` (ilk açılıştan bu yana).
+- **Gönderim:** cevaplar PostHog'a `geri_bildirim` olayı olarak gider. Serbest metin 200 karakterde kesilir; kişisel veri istenmez.
+
+### Bildirim (`@oyun/ortak/bildirim`)
+
+- **Kurulum:** `bildirimBaslat({ yerel, depo })`. `yerel`, oyunun yerel bildirim eklentisini (ör. `@capacitor/local-notifications`) saran üç işlev: `izinIste`, `planla`, `iptal`.
+- **Açıp kapatma:** `ayarla({ acik, saat, dakika, baslik, metin })`. Açarken izin ister.
+- **Günlük akış:** günün oyunu bitince `oynandi()` bugünkü hatırlatmayı atlar. Açılışta `yenile()` 7 günlük pencereyi kaydırır.
+- **Sunucu push (FCM/APNs):** Firebase projesi açılınca eklenecek.
 
 ## Sunucu kuralları (oyun şeması göçleri için)
 

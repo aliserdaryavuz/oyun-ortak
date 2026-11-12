@@ -8,3 +8,5 @@ insert into ortak.oyunlar (id, ad, ayarlar) values (
              "cikis_orani": 0.2, "inis_orani": 0.2, "en_iyi_gun": 5, "esitlik": "ortak", "bant_genisligi": 0 }
   }'
 );
+
+insert into ortak.urunler (urun, oyun_id, hak) values ('deneme_tam', 'deneme', 'tam');
