@@ -106,6 +106,9 @@ test("ödüller: ağsızken bekler, oturumla bir kez eşitlenir, başka cihaza g
   assert.deepEqual((await e2.oduller()).map((x) => x.odul), ["rozet-ilk"]);
   // geçersiz kimlik ve gelecek tarih
   await assert.rejects(rpc(c, "odul_kaydet", { p_oyun: "deneme", p_oduller: [{ odul: "Büyük Harf" }] }));
+  // sıralama ödülünü istemci kendine yazamaz
+  await assert.rejects(rpc(c, "odul_kaydet", { p_oyun: "deneme", p_oduller: [{ odul: "sira:usta" }] }), /odul_yasak/);
+  await assert.rejects(sql`select ortak.siralama_odulu_ver('deneme', 'gunluk', '2000-01-01', 'onek-yok', 0.1)`);
   await rpc(c, "odul_kaydet", { p_oyun: "deneme", p_oduller: [{ odul: "gelecek", kazanildi: "2099-01-01T00:00:00Z" }] });
   const [g] = await sql`select kazanildi <= now() as ok from ortak.oduller where odul = 'gelecek' and oyun_id = 'deneme' limit 1`;
   assert.equal(g!.ok, true);
@@ -120,9 +123,9 @@ test("sıralama ödülü: etkinlik sıralamasında ilk %10 (en az 1), eşitler d
     const puan = i === 1 ? 100 : 100 - i; // ilk iki oyuncu eşit (100)
     await sql`select ortak.skor_yaz('deneme', ${id}, 'etkinlik', ${donem}, ${puan}, gen_random_uuid(), 1)`;
   }
-  const [{ n }] = await sql`select ortak.siralama_odulu_ver('deneme', 'etkinlik', ${donem}, 'usta-rozeti', 0.1) as n`;
+  const [{ n }] = await sql`select ortak.siralama_odulu_ver('deneme', 'etkinlik', ${donem}, 'sira:usta', 0.1) as n`;
   assert.equal(n, 2);
-  const alan = await sql`select kullanici_id from ortak.oduller where odul = 'usta-rozeti' and kaynak = ${"etkinlik:" + donem}`;
+  const alan = await sql`select kullanici_id from ortak.oduller where odul = 'sira:usta' and kaynak = ${"etkinlik:" + donem}`;
   assert.deepEqual(new Set(alan.map((r) => r.kullanici_id)), new Set([idler[0], idler[1]]));
 });
 

@@ -151,7 +151,7 @@ Davranış:
 - **Okuma:** `takvim()` ağ yoksa son geçerli takvimi verir. Yardımcılar: `suren(liste)`, `yaklasan(liste)`, `kalanSure(oge)`. Hepsi İstanbul günüyle çalışır, öğelerde `baslangic`/`bitis` (YYYY-MM-DD, dahil) beklenir.
 - **Ödül:** `odulKazan("rozet-usta", "usta-2026-11")` cihazda hemen kaydeder; oturum varsa sunucuya bir kez yazar.
 - **Eşitleme:** açılışta ve girişten sonra `esitle()`; başka cihazda kazanılanları getirir. Ödül kimliği `^[a-z0-9_:.-]{1,64}$`.
-- **Sıralama ödülü (HK-3, "ilk %10"):** `select ortak.siralama_odulu_ver('halka', 'etkinlik', '<etkinlik_id>', '<odul>', 0.1)`. Oyunun cron işi ya da elle çalıştırılır; eşitler dahil.
+- **Sıralama ödülü (HK-3, "ilk %10"):** `select ortak.siralama_odulu_ver('halka', 'etkinlik', '<etkinlik_id>', 'sira:<odul>', 0.1)`. Oyunun cron işi ya da elle çalıştırılır; eşitler dahil. Kimlik `sira:` ile başlar; bu önekli ödülleri istemci kendine yazamaz.
 
 ### Geri bildirim (`@oyun/ortak/geri-bildirim`)
 

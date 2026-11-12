@@ -130,12 +130,16 @@ create index oduller_kullanici on ortak.oduller (kullanici_id);
 alter table ortak.oduller enable row level security;
 
 -- p_oduller: [{ odul, kaynak?, kazanildi? }], en çok 100. Var olan ödül tekrar yazılmaz. Dönüş: yeni kaydedilen sayı.
+-- `sira:` önekli ödüller yalnız sunucunun verdiği sıralama ödülleridir (`siralama_odulu_ver`); istemci yazamaz.
 create function ortak.odul_kaydet(p_oyun text, p_oduller jsonb) returns integer
 language plpgsql security definer set search_path = '' as $$
 declare u uuid := ortak.kim(); n integer;
 begin
   if jsonb_typeof(p_oduller) <> 'array' or jsonb_array_length(p_oduller) > 100 then
     raise exception 'oduller_gecersiz';
+  end if;
+  if exists (select 1 from jsonb_array_elements(p_oduller) x where x ->> 'odul' like 'sira:%') then
+    raise exception 'odul_yasak';
   end if;
   if not ortak.hiz_siniri('odul:' || u, 30, 60) then raise exception 'cok_istek' using errcode = '54000'; end if;
   insert into ortak.oduller (oyun_id, kullanici_id, odul, kaynak, kazanildi)
@@ -155,11 +159,13 @@ $$;
 
 -- Sıralama ödülü (HK-3: etkinlik sıralamasında ilk %10): servis rolü ya da cron çağırır.
 -- Sıra `ortak.siralama` ile aynı kuralla (yön, eşitlik); eşitler aynı sırayı paylaşır. Dönüş: ödül alan sayısı.
+-- Ödül kimliği `sira:` ile başlamalı; bu önek istemciye kapalıdır, yani bu ödülü yalnız sıralama kazandırır.
 create function ortak.siralama_odulu_ver(p_oyun text, p_tur text, p_donem text, p_odul text, p_oran numeric)
 returns integer
 language plpgsql security definer set search_path = '' as $$
 declare a jsonb; yon int; ikincilli boolean; toplam int; n int;
 begin
+  if p_odul not like 'sira:%' then raise exception 'sira_oneki_gerekli'; end if;
   select coalesce(ayarlar -> 'siralama', '{}') into a from ortak.oyunlar where id = p_oyun;
   yon := case when a ->> 'yon' = 'artan' then -1 else 1 end;
   ikincilli := coalesce(a ->> 'esitlik', 'ortak') = 'ikincil';
