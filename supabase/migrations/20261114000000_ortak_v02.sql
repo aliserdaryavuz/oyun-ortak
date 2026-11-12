@@ -80,22 +80,31 @@ begin
 end $$;
 
 -- RevenueCat TRANSFER: haklar bir mağaza kimliğinden ötekine geçer (ör. başka hesapta "geri yükle").
-create function ortak.hak_aktar(p_olay_id text, p_kimden uuid[], p_kime uuid) returns text
+-- Tek webhook bütün oyunlara hizmet eder; aktarım yalnız olayı gönderen RevenueCat uygulamasının oyunuyla
+-- sınırlıdır (oyunlar.ayarlar.odeme.revenuecat_uygulamalari dizisi). Eşleşme yoksa hiçbir şey taşınmaz.
+create function ortak.hak_aktar(p_olay_id text, p_uygulama text, p_kimden uuid[], p_kime uuid) returns text
 language plpgsql security definer set search_path = '' as $$
+declare v_oyun text; sonuc text;
 begin
   if exists (select 1 from ortak.odeme_olaylari where olay_id = p_olay_id) then return 'tekrar'; end if;
-  if not exists (select 1 from auth.users where id = p_kime) then
-    insert into ortak.odeme_olaylari (olay_id, sonuc) values (p_olay_id, 'kullanici_yok');
-    return 'kullanici_yok';
+  select id into v_oyun from ortak.oyunlar
+    where ayarlar -> 'odeme' -> 'revenuecat_uygulamalari' ? p_uygulama;
+  if v_oyun is null then
+    sonuc := 'oyun_yok';
+  elsif not exists (select 1 from auth.users where id = p_kime) then
+    sonuc := 'kullanici_yok';
+  else
+    insert into ortak.haklar (oyun_id, kullanici_id, hak, durum, kaynak, urun, dis_id)
+      select oyun_id, p_kime, hak, durum, kaynak, urun, dis_id from ortak.haklar
+      where oyun_id = v_oyun and kullanici_id = any (p_kimden)
+      on conflict (oyun_id, kullanici_id, hak) do update
+        set durum = case when ortak.haklar.durum = 'aktif' or excluded.durum = 'aktif' then 'aktif' else 'iade' end,
+            guncelleme = now();
+    delete from ortak.haklar where oyun_id = v_oyun and kullanici_id = any (p_kimden) and kullanici_id <> p_kime;
+    sonuc := 'ok';
   end if;
-  insert into ortak.haklar (oyun_id, kullanici_id, hak, durum, kaynak, urun, dis_id)
-    select oyun_id, p_kime, hak, durum, kaynak, urun, dis_id from ortak.haklar where kullanici_id = any (p_kimden)
-    on conflict (oyun_id, kullanici_id, hak) do update
-      set durum = case when ortak.haklar.durum = 'aktif' or excluded.durum = 'aktif' then 'aktif' else 'iade' end,
-          guncelleme = now();
-  delete from ortak.haklar where kullanici_id = any (p_kimden) and kullanici_id <> p_kime;
-  insert into ortak.odeme_olaylari (olay_id, sonuc) values (p_olay_id, 'ok');
-  return 'ok';
+  insert into ortak.odeme_olaylari (olay_id, sonuc) values (p_olay_id, sonuc);
+  return sonuc;
 end $$;
 
 -- Korumalı içerik (HK-8): ücretli dosyalar `korumali` kovasında `<oyun>/<hak>/...` yolunda.

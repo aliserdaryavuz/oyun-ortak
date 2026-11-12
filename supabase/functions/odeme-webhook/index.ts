@@ -4,7 +4,7 @@
  *
  * Uygulama tarafında RevenueCat kullanıcı kimliği = Supabase kullanıcı kimliği (odeme paketi `logIn` eder).
  * Olaylar: satın alma → hak 'aktif'; tek seferlik üründe CANCELLATION (iade) ve EXPIRATION → 'iade';
- * TRANSFER → haklar yeni kimliğe geçer. Aynı olay iki kez gelirse bir kez işlenir.
+ * TRANSFER → yalnız olayı gönderen uygulamanın oyunundaki haklar yeni kimliğe geçer. Aynı olay iki kez gelirse bir kez işlenir.
  * Kapalı testteki (sandbox) satın almalar da kabul edilir: Play kapalı testi bunlarla yürür.
  */
 import { createClient } from "npm:@supabase/supabase-js@2.119.0";
@@ -26,6 +26,7 @@ interface Olay {
   store?: string;
   transaction_id?: string;
   expiration_at_ms?: number | null;
+  app_id?: string;
   transferred_from?: string[];
   transferred_to?: string[];
 }
@@ -71,8 +72,11 @@ Deno.serve(async (req) => {
     if (o.type === "TRANSFER") {
       const kime = (o.transferred_to ?? []).find((x) => UUID.test(x));
       const kimden = (o.transferred_from ?? []).filter((x) => UUID.test(x));
-      if (!kime || kimden.length === 0) return json({ sonuc: "yok_sayildi" });
-      const { data, error } = await db.rpc("hak_aktar", { p_olay_id: o.id, p_kimden: kimden, p_kime: kime });
+      if (!kime || kimden.length === 0 || !o.app_id) return json({ sonuc: "yok_sayildi" });
+      // Yalnız bu RevenueCat uygulamasının oyunundaki haklar taşınır.
+      const { data, error } = await db.rpc("hak_aktar", {
+        p_olay_id: o.id, p_uygulama: o.app_id, p_kimden: kimden, p_kime: kime,
+      });
       if (error) throw error;
       return json({ sonuc: data });
     }

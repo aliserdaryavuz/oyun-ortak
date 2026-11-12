@@ -55,14 +55,23 @@ test("iade: tek seferlik üründe CANCELLATION hakkı düşürür; istemci önbe
   assert.deepEqual([...(await o.yenile())], []);
 });
 
-test("TRANSFER: haklar yeni kimliğe geçer", async () => {
+test("TRANSFER: yalnız gönderen uygulamanın oyunundaki haklar geçer", async () => {
+  await sql`insert into ortak.oyunlar (id, ad) values ('baska', 'Başka Oyun') on conflict do nothing`;
+  await sql`insert into ortak.urunler values ('baska_tam', 'baska', 'tam') on conflict do nothing`;
   const a = await oyuncu();
   const b = await oyuncu();
   await webhook(satinAlma(a.id));
-  const r = await webhook({ id: crypto.randomUUID(), type: "TRANSFER", transferred_from: [a.id], transferred_to: [b.id] });
-  assert.equal(r.veri.sonuc, "ok");
+  await webhook(satinAlma(a.id, { product_id: "baska_tam" }));
+  const transfer = (app_id?: string) =>
+    webhook({ id: crypto.randomUUID(), type: "TRANSFER", app_id, transferred_from: [a.id], transferred_to: [b.id] });
+  assert.equal((await transfer("bilinmeyen_app")).veri.sonuc, "oyun_yok");
+  assert.equal((await transfer(undefined)).veri.sonuc, "yok_sayildi");
+  assert.equal((await transfer("app_deneme")).veri.sonuc, "ok");
   assert.deepEqual(await haklarim(b.c), [{ hak: "tam", durum: "aktif" }]);
   assert.deepEqual(await haklarim(a.c), []);
+  // başka oyunun hakkı yerinde kaldı
+  const [{ n }] = await sql`select count(*)::int as n from ortak.haklar where kullanici_id = ${a.id} and oyun_id = 'baska'`;
+  assert.equal(n, 1);
 });
 
 test("korumalı içerik: yalnız hakkı olan indirir, başka oyunun yolu kapalı", async () => {

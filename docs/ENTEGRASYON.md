@@ -109,7 +109,7 @@ Expo (Beat Greedy): depo, AsyncStorage'dan `{ oku: getItem, yaz: setItem, sil: r
 
 Kurulum, oyun başına bir kez:
 1. **Bu depoda göç:** ürün → hak eşlemesi. Örnek: `insert into ortak.urunler values ('halka_paket_tam', 'halka', 'paket_tam');`
-2. **RevenueCat:** projeye oyunun uygulamasını (Play/App Store) ekle. Entitlement kimliği = haktaki ad (`paket_tam`), ürün kimliği = mağaza ürün kimliği.
+2. **RevenueCat:** projeye oyunun uygulamasını (Play/App Store) ekle. Entitlement kimliği = haktaki ad (`paket_tam`), ürün kimliği = mağaza ürün kimliği. RevenueCat'in uygulama kimliklerini (`app_…`, Play ve App Store ayrı) oyunun ayarına yaz: `ayarlar.odeme.revenuecat_uygulamalari = ["app_…"]`. TRANSFER (başka hesapta geri yükleme) yalnız bu eşlemeyle ve yalnız o oyunun haklarını taşır.
 3. **RevenueCat → Integrations → Webhooks:**
    - Adres: `https://qzxchutjzhyzzaoxzroh.supabase.co/functions/v1/odeme-webhook`
    - Authorization header: `C:\Users\alise\.oyun-ortak\odeme-webhook.env` dosyasındaki değer. Bütün oyunlar aynı webhook'u kullanır.
