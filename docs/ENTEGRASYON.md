@@ -42,6 +42,14 @@ Okuyucu: oyun deposunda çalışan oturum (Aşama 1'e gelmiş oyun). Önce `_ort
 
 Yerelde iki depoyu birlikte geliştirirken `npm link ../_ortak/oyun-ortak` kullanılabilir. Bu bağlantı commit'e girmez.
 
+Ortak değerler (hepsi herkese açık, uygulamaya gömülür):
+
+| | `oyun-canli` (yayın) | `oyun-test` (önizleme) |
+| --- | --- | --- |
+| Supabase adresi | `https://qzxchutjzhyzzaoxzroh.supabase.co` | `https://vbygbyurswjjmiqrhvmo.supabase.co` |
+| Anon / publishable anahtar | `npx supabase projects api-keys --remote=qzxchutjzhyzzaoxzroh` | `npx supabase projects api-keys --remote=vbygbyurswjjmiqrhvmo` |
+| PostHog (AB, tek proje) | `phc_xLYVrxm9z6jsgXrGDpbUAKBypFX9qv5mhwVctX4QQia9` | Aynı anahtar; test olayları cihaz kimliğindeki `t-<kod>` ile ayrılır |
+
 Tek ayar dosyası `src/oyun.config.ts`. Supabase adresi ve anon anahtarı gizli değildir, ama ortam değişkeninden gelir. Böylece önizleme `oyun-test`'e, yayın `oyun-canli`'ya bağlanır.
 
 ```ts
