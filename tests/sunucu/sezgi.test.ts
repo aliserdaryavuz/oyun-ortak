@@ -30,7 +30,7 @@ test("zamanlanmış işlerin çağırdığı fonksiyonlar sezgi şemasında çal
   for (const f of ["expire_attempts", "refresh_boards", "update_beaten_targets", "purge_attempt_details"])
     await sql.unsafe(`select sezgi.${f}()`);
   const isler = await sql`select jobname, command from cron.job where jobname like 'sezgi-%' order by 1`;
-  assert.equal(isler.length, 5);
+  assert.equal(isler.length, 6); // sezgi'nin 5 işi + silinen_oyuncular temizliği
   for (const j of isler) assert.doesNotMatch(j.command, /public\./, j.jobname);
 });
 
@@ -45,4 +45,16 @@ test("ortak silme yolu: bu oyundan sil sezgi profilini siler; lig kurucusu önce
   const [{ n }] = await sql`select count(*)::int as n from sezgi.profiles where id = ${a.id}`;
   assert.equal(n, 0);
   assert.deepEqual(await a.h.hesapOzeti(), []);
+  // Aynı gün profil yeniden açılıp günün bulmacası tekrar oynanamaz
+  const { error } = await a.sezgi().from("profiles").insert({ id: a.id, username: `geri_${Math.floor(Math.random() * 1e8)}` });
+  assert.match(error?.message ?? "", /ayni_gun_yeniden_profil/);
+  // Ertesi gün açılabilir
+  await sql`update sezgi.silinen_oyuncular set silindi = now() - interval '1 day' where kullanici_id = ${a.id}`;
+  assert.equal((await a.sezgi().from("profiles").insert({ id: a.id, username: `yarin_${Math.floor(Math.random() * 1e8)}` })).error, null);
+  // İstek sınırı sayacı silme yolunda sıfırlanmaz
+  await sql`insert into sezgi.rate_limits values (${a.id}, 'start_attempt', now(), 30)`;
+  await sql`delete from sezgi.leagues where owner_id = ${a.id}`;
+  await a.h.buOyundanSil();
+  const [{ r }] = await sql`select count(*)::int as r from sezgi.rate_limits where user_id = ${a.id}`;
+  assert.equal(r, 1);
 });
