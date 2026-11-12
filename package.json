@@ -1,6 +1,6 @@
 {
   "name": "@oyun/ortak",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Serdar'ın mobil oyunlarının ortak kütüphanesi: kayit, hesap, siralama, olcum, odeme, etkinlik, geri-bildirim, bildirim.",
   "type": "module",
   "license": "UNLICENSED",

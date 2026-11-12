@@ -2,6 +2,10 @@
 
 Her sürümde "Oyunlar ne yapmalı" bölümü vardır. Sürümleme semver; `0.x`'te küçük sürüm kırıcı olabilir.
 
+## v0.3.1 (13 Kasım 2026)
+
+Şikâyet düzeltmeleri (`20261115000200_sikayet_duzelt.sql`): yalnız şu anki ada yapılan şikâyetler sayılır; şikâyetçi o oyunda en az `ayarlar.sikayet.en_az_gun` (2) gündür oynamış olmalı; misafirken alınan şikâyetler devirde yeni hesaba taşınır. İstemci API'si değişmedi.
+
 ## v0.3.0 (13 Kasım 2026)
 
 - Şikâyet: `hesap.sikayetEt(ad, neden)`; göç `20261115000100_ortak_v03_sikayet.sql` (`ortak.sikayetler`, `ortak.sikayet_et`). Ad şikâyeti eşiğe ulaşınca ad sıfırlanır.

@@ -169,6 +169,9 @@ Davranış:
 - **Kim şikâyet edebilir:** yalnız kalıcı hesaplar (Google, Apple ya da e-posta), günde en çok 20 şikâyet. Anonim hesaplar şikâyet edemez.
 - **Ad şikâyeti:** farklı kalıcı hesaplardan gelen şikâyet sayısı eşiğe ulaşınca hedefin adı sıfırlanır.
   - Eşik oyunun ayarında: `ayarlar.sikayet.ad_esigi`, varsayılan 3.
+  - Yalnız o oyunda en az `ayarlar.sikayet.en_az_gun` (varsayılan 2) gündür oynayan kalıcı hesapların şikâyeti sayılır; daha yeni hesapların şikâyeti kaydedilir ama sayılmaz.
+  - Yalnız şu anki ada yapılan şikâyetler sayılır; oyuncu adını değiştirirse eski şikâyetler düşer.
+  - Misafirken alınan şikâyetler hesap bağlanınca yeni hesaba taşınır.
   - Sıralama adsız oyuncuyu gösterirken oyun "Oyuncu" yazar.
   - Oyuncu hemen yeni ad seçebilir; 30 gün sınırı sıfırlanır.
 - **`hile` ve `diger`:** yalnız kaydedilir. İnceleme Supabase panelinden `ortak.sikayetler` tablosuyla yapılır.
