@@ -31,12 +31,13 @@
 <main>
   <header>
     <h1>oyun-ortak v0.1 tanıtım</h1>
-    <p class="not">Yerel Supabase yığınına (oyun-test) bağlı, sahte "deneme" oyunu. Oturum: <b id="oturum">—</b></p>
+    <p class="not">Sahte "deneme" oyunu. Bağlantı: <b id="baglanti">—</b>. Oturum: <b id="oturum">—</b></p>
   </header>
 
   <section>
     <h2>Hesap</h2>
-    <div class="satir"><button class="ana" id="anonim">Misafir olarak başla</button><button id="ben">Ben</button><button id="yas">13+ onayla</button></div>
+    <div class="satir"><button class="ana" id="google">Google ile devam et</button></div>
+    <div class="satir"><button id="anonim">Misafir olarak başla</button><button id="ben">Ben</button><button id="yas">13+ onayla</button></div>
     <div class="satir"><input id="eposta" placeholder="e-posta" autocomplete="email"><button id="kodGonder">Kod gönder</button></div>
     <div class="satir"><input id="kod" placeholder="6 haneli kod" inputmode="numeric"><button id="kodGir">Kodla gir</button></div>
     <p class="not">Kod e-postası yerelde Mailpit'e düşer: <a href="http://127.0.0.1:55324" target="_blank" rel="noopener">127.0.0.1:55324</a></p>
@@ -76,9 +77,12 @@
   import { siralamaBaslat, istanbulGunu } from "../dist/siralama/index.js";
   import { olcumBaslat } from "../dist/olcum/index.js";
 
-  // Supabase CLI'ın herkesçe bilinen yerel demo anahtarı (gizli değil).
-  const supabase = createClient("http://127.0.0.1:55321",
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0");
+  // ?bulut=test → oyun-test (buluttaki test projesi); yoksa yerel yığın. İkisi de herkese açık anahtar (gizli değil).
+  const BULUT = new URLSearchParams(location.search).get("bulut") === "test";
+  const supabase = BULUT
+    ? createClient("https://vbygbyurswjjmiqrhvmo.supabase.co", "sb_publishable_gQyCGzYNBRlYz8bRJPStXA_pAv5cvzO")
+    : createClient("http://127.0.0.1:55321",
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0");
   const depo = webDepo();
   const hesap = hesapBaslat({ supabase, oyunId: "deneme", depo });
   const siralama = siralamaBaslat({ supabase, oyunId: "deneme", depo });
@@ -100,6 +104,7 @@
   });
 
   dugme("anonim", () => hesap.anonimGir());
+  dugme("google", () => hesap.webIleGir("google", location.origin + location.pathname + location.search));
   dugme("ben", () => hesap.ben());
   dugme("yas", () => hesap.yasOnayla());
   dugme("kodGonder", () => hesap.epostaKoduGonder($("eposta").value.trim()));
@@ -150,6 +155,9 @@
   dugme("oyundanSil", async () => { await hesap.buOyundanSil(); await yerel.temizle(); });
   dugme("tamamenSil", async () => { await hesap.tamamenSil(); await yerel.temizle(); });
 
+  $("baglanti").textContent = BULUT ? "oyun-test (bulut)" : "yerel yığın";
+  // Google yönlendirmesinden dönüş: misafir verisinin devri burada tamamlanır.
+  try { const d = await hesap.webDonusunuTamamla(); if (d) yaz("Google dönüşü", d); } catch (e) { yaz("Google dönüşü HATA", e?.message ?? String(e)); }
   await oturumGoster();
   yaz("hazır", { cihaz, yerel: (await yerel.ac()).durum, bekleyen: await siralama.bekleyenSayisi() });
 </script>

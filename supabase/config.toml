@@ -469,6 +469,14 @@ content_path = ""
 subject = "Confirm your email address"
 content_path = ""
 
+# Google ile giriş. Sır depoda değil: kullanıcı klasöründeki .oyun-ortak/google.env içindeki GOOGLE_CLIENT_SECRET,
+# gönderim anında ortamdan okunur. Android yerel girişinin istemci kimlikleri ileride client_id'ye virgülle eklenir.
+[remotes.canli.auth.external.google]
+enabled = true
+client_id = "104092866938-o606eoqcqkjh38mdo00kg8baate5kcoi.apps.googleusercontent.com"
+secret = "env(GOOGLE_CLIENT_SECRET)"
+skip_nonce_check = false
+
 [remotes.canli.auth.rate_limit]
 email_sent = 30
 anonymous_users = 60
@@ -500,6 +508,14 @@ content_path = ""
 [remotes.test.auth.email.template.confirmation]
 subject = "Confirm your email address"
 content_path = ""
+
+# Google ile giriş. Sır depoda değil: kullanıcı klasöründeki .oyun-ortak/google.env içindeki GOOGLE_CLIENT_SECRET,
+# gönderim anında ortamdan okunur. Android yerel girişinin istemci kimlikleri ileride client_id'ye virgülle eklenir.
+[remotes.test.auth.external.google]
+enabled = true
+client_id = "104092866938-o606eoqcqkjh38mdo00kg8baate5kcoi.apps.googleusercontent.com"
+secret = "env(GOOGLE_CLIENT_SECRET)"
+skip_nonce_check = false
 
 [remotes.test.auth.rate_limit]
 email_sent = 30

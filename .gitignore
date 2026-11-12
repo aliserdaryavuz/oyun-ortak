@@ -5,3 +5,6 @@ dist/
 supabase/.temp/
 supabase/.branches/
 .playwright-mcp/
+*.env
+*.env.*
+client_secret*.json
