@@ -1,0 +1,55 @@
+{
+  "name": "@oyun/ortak",
+  "version": "0.1.0-dev",
+  "description": "Serdar'ın mobil oyunlarının ortak kütüphanesi: kayit, hesap, siralama, olcum.",
+  "type": "module",
+  "license": "UNLICENSED",
+  "engines": {
+    "node": ">=22.18"
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "exports": {
+    "./kayit": {
+      "types": "./dist/kayit/index.d.ts",
+      "default": "./dist/kayit/index.js"
+    },
+    "./olcum": {
+      "types": "./dist/olcum/index.d.ts",
+      "default": "./dist/olcum/index.js"
+    },
+    "./hesap": {
+      "types": "./dist/hesap/index.d.ts",
+      "default": "./dist/hesap/index.js"
+    },
+    "./siralama": {
+      "types": "./dist/siralama/index.d.ts",
+      "default": "./dist/siralama/index.js"
+    }
+  },
+  "scripts": {
+    "prepare": "tsc -p tsconfig.json",
+    "test": "node --test \"src/**/*.test.ts\"",
+    "test:sunucu": "node --test --test-concurrency=1 \"tests/sunucu/*.test.ts\"",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "db:start": "supabase start",
+    "db:reset": "supabase db reset"
+  },
+  "peerDependencies": {
+    "@supabase/supabase-js": "^2.119.0"
+  },
+  "peerDependenciesMeta": {
+    "@supabase/supabase-js": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@supabase/supabase-js": "^2.119.0",
+    "@types/node": "^24.19.2",
+    "postgres": "^3.4.9",
+    "supabase": "^3.1.0",
+    "typescript": "^5.9.3"
+  }
+}

@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>oyun-ortak tanıtım</title>
+<style>
+  :root { --zemin: #f6f4ef; --kart: #fff; --yazi: #1f1f1f; --soluk: #6b6b6b; --vurgu: #1c6b5a; --cizgi: #e3dfd6; --hata: #a8322d; }
+  @media (prefers-color-scheme: dark) { :root { --zemin: #17191a; --kart: #212426; --yazi: #ececec; --soluk: #9a9a9a; --vurgu: #5bc0a4; --cizgi: #34383b; --hata: #f08a84; } }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--zemin); color: var(--yazi); font: 15px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  main { max-width: 980px; margin: 0 auto; padding: 20px 16px 60px; display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+  header { grid-column: 1 / -1; }
+  h1 { font-size: 20px; margin: 0 0 4px; }
+  h2 { font-size: 15px; margin: 0 0 10px; }
+  p.not { margin: 0; color: var(--soluk); font-size: 13px; }
+  section { background: var(--kart); border: 1px solid var(--cizgi); border-radius: 10px; padding: 14px; display: flex; flex-direction: column; gap: 8px; }
+  .satir { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+  button { font: inherit; padding: 7px 11px; border-radius: 7px; border: 1px solid var(--vurgu); background: transparent; color: var(--vurgu); cursor: pointer; }
+  button.ana { background: var(--vurgu); color: var(--kart); }
+  button.tehlike { border-color: var(--hata); color: var(--hata); }
+  input { font: inherit; padding: 7px 9px; border-radius: 7px; border: 1px solid var(--cizgi); background: var(--zemin); color: var(--yazi); min-width: 0; flex: 1; }
+  pre { margin: 0; font: 12px/1.4 ui-monospace, Consolas, monospace; white-space: pre-wrap; word-break: break-word; max-height: 260px; overflow: auto; background: var(--zemin); border-radius: 7px; padding: 8px; }
+  #kayit { grid-column: 1 / -1; }
+  table { border-collapse: collapse; width: 100%; font-size: 13px; }
+  td, th { text-align: left; padding: 3px 6px; border-bottom: 1px solid var(--cizgi); }
+  tr.ben td { font-weight: 700; color: var(--vurgu); }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>oyun-ortak v0.1 tanıtım</h1>
+    <p class="not">Yerel Supabase yığınına (oyun-test) bağlı, sahte "deneme" oyunu. Oturum: <b id="oturum">—</b></p>
+  </header>
+
+  <section>
+    <h2>Hesap</h2>
+    <div class="satir"><button class="ana" id="anonim">Misafir olarak başla</button><button id="ben">Ben</button><button id="yas">13+ onayla</button></div>
+    <div class="satir"><input id="eposta" placeholder="e-posta" autocomplete="email"><button id="kodGonder">Kod gönder</button></div>
+    <div class="satir"><input id="kod" placeholder="6 haneli kod" inputmode="numeric"><button id="kodGir">Kodla gir</button></div>
+    <p class="not">Kod e-postası yerelde Mailpit'e düşer: <a href="http://127.0.0.1:55324" target="_blank" rel="noopener">127.0.0.1:55324</a></p>
+    <div class="satir"><button id="cikis">Çıkış</button><button id="odul">Bağlama ödülü</button></div>
+  </section>
+
+  <section>
+    <h2>Takma ad</h2>
+    <div class="satir"><button id="otoAd">Otomatik ad</button></div>
+    <div class="satir"><input id="ad" placeholder="Takma ad (3–16)"><button id="adDegistir">Değiştir</button></div>
+  </section>
+
+  <section>
+    <h2>Günlük skor</h2>
+    <div class="satir"><input id="rakamlar" value="7 3 9" aria-label="rakamlar"><button class="ana" id="gonder">Gönder</button></div>
+    <p class="not">Sahte motor: puan = rakamların toplamı; sunucu yeniden hesaplar.</p>
+    <div class="satir"><button id="tablo">Bugünün tablosu</button><button id="lig">Lig</button><button id="bosalt">Kuyruğu boşalt</button></div>
+    <div id="tabloAlan"></div>
+  </section>
+
+  <section>
+    <h2>Bulut kaydı ve silme</h2>
+    <div class="satir"><button id="kaydet">Yerel kaydı birleştir</button><button id="kayitOku">Bulut kaydını oku</button></div>
+    <div class="satir"><button id="ozet">Hesap özeti</button><button class="tehlike" id="oyundanSil">Bu oyundaki verimi sil</button><button class="tehlike" id="tamamenSil">Hesabımı tamamen sil</button></div>
+  </section>
+
+  <section id="kayit">
+    <h2>Kayıt</h2>
+    <pre id="cikti"></pre>
+  </section>
+</main>
+
+<script type="module">
+  import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm";
+  import { webDepo, kayitDeposu, cihazKimligi } from "../dist/kayit/index.js";
+  import { hesapBaslat } from "../dist/hesap/index.js";
+  import { siralamaBaslat, istanbulGunu } from "../dist/siralama/index.js";
+  import { olcumBaslat } from "../dist/olcum/index.js";
+
+  // Supabase CLI'ın herkesçe bilinen yerel demo anahtarı (gizli değil).
+  const supabase = createClient("http://127.0.0.1:55321",
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0");
+  const depo = webDepo();
+  const hesap = hesapBaslat({ supabase, oyunId: "deneme", depo });
+  const siralama = siralamaBaslat({ supabase, oyunId: "deneme", depo });
+  const cihaz = await cihazKimligi(depo, new URLSearchParams(location.search).get("t"));
+  const olcum = await olcumBaslat({ oyunId: "deneme", surum: "0.1.0", platform: "web", anahtar: "", cihaz, depo });
+  const yerel = kayitDeposu({ depo, anahtar: "deneme:kayit", surum: 1, bos: () => ({ gunler: {} }) });
+
+  const $ = (id) => document.getElementById(id);
+  const yaz = (baslik, v) => {
+    $("cikti").textContent = `▸ ${baslik}\n${typeof v === "string" ? v : JSON.stringify(v, null, 2)}\n\n` + $("cikti").textContent;
+  };
+  const oturumGoster = async () => {
+    const k = await hesap.kullanici();
+    $("oturum").textContent = k ? `${k.anonim ? "misafir" : k.eposta} (${k.id.slice(0, 8)}…)` : "yok";
+  };
+  const dugme = (id, fn) => $(id).addEventListener("click", async () => {
+    try { yaz(id, (await fn()) ?? "tamam"); } catch (e) { yaz(`${id} HATA`, e?.message ?? String(e)); }
+    await oturumGoster();
+  });
+
+  dugme("anonim", () => hesap.anonimGir());
+  dugme("ben", () => hesap.ben());
+  dugme("yas", () => hesap.yasOnayla());
+  dugme("kodGonder", () => hesap.epostaKoduGonder($("eposta").value.trim()));
+  dugme("kodGir", async () => {
+    const r = await hesap.epostaKoduIleGir($("eposta").value.trim(), $("kod").value.trim());
+    const { veri } = await yerel.ac();
+    const b = await hesap.bulutKaydi().birlestir(veri, birlestir);
+    await yerel.yaz(b.kayit);
+    return { ...r, birlesim: b.ozet };
+  });
+  dugme("cikis", () => hesap.cikis());
+  dugme("odul", () => hesap.baglamaOdulu());
+  dugme("otoAd", () => hesap.otomatikAd(["Bekçi", "Çoban", "Kahveci", "Avcı"]));
+  dugme("adDegistir", () => hesap.adDegistir($("ad").value));
+
+  const birlestir = (y, u) => {
+    const gunler = { ...u.gunler };
+    for (const [g, p] of Object.entries(y.gunler)) gunler[g] = Math.max(gunler[g] ?? 0, p);
+    return { kayit: { gunler }, ozet: `${Object.keys(gunler).length} gün` };
+  };
+
+  dugme("gonder", async () => {
+    const kayit = $("rakamlar").value.trim().split(/\s+/).map(Number);
+    const r = await siralama.gonder({ islem: "gunluk", gun: istanbulGunu(), kayit, kuralSurumu: 1 });
+    if (r.durum === 200) {
+      const { veri } = await yerel.ac();
+      veri.gunler[istanbulGunu()] = Math.max(veri.gunler[istanbulGunu()] ?? 0, r.veri.puan);
+      await yerel.yaz(veri);
+      olcum.olay("gunluk_bitir", { puan: r.veri.puan });
+    }
+    return r;
+  });
+  dugme("bosalt", () => siralama.bosalt());
+  dugme("tablo", async () => {
+    const t = await siralama.tablo("gunluk", istanbulGunu());
+    $("tabloAlan").innerHTML = `<table><tr><th>Sıra</th><th>Ad</th><th>Puan</th></tr>${t.satirlar
+      .map((s) => `<tr class="${s.ben ? "ben" : ""}"><td>${s.sira}</td><td></td><td>${s.puan}</td></tr>`).join("")}</table>`;
+    [...$("tabloAlan").querySelectorAll("tr td:nth-child(2)")].forEach((td, i) => { td.textContent = t.satirlar[i].ad ?? "Oyuncu"; });
+    return t;
+  });
+  dugme("lig", () => siralama.lig());
+  dugme("kaydet", async () => {
+    const { veri } = await yerel.ac();
+    return hesap.bulutKaydi().birlestir(veri, birlestir);
+  });
+  dugme("kayitOku", () => hesap.bulutKaydi().oku());
+  dugme("ozet", () => hesap.hesapOzeti());
+  dugme("oyundanSil", async () => { await hesap.buOyundanSil(); await yerel.temizle(); });
+  dugme("tamamenSil", async () => { await hesap.tamamenSil(); await yerel.temizle(); });
+
+  await oturumGoster();
+  yaz("hazır", { cihaz, yerel: (await yerel.ac()).durum, bekleyen: await siralama.bekleyenSayisi() });
+</script>
+</body>
+</html>

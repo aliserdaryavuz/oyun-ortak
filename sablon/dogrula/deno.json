@@ -1,0 +1,5 @@
+{
+  "imports": {
+    "@oyun/ortak-sunucu": "https://raw.githubusercontent.com/aliserdaryavuz/oyun-ortak/v0.1.0/sunucu/mod.ts"
+  }
+}
