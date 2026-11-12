@@ -36,7 +36,7 @@
 
   <section>
     <h2>Hesap</h2>
-    <div class="satir"><button class="ana" id="google">Google ile devam et</button></div>
+    <div class="satir"><div id="googleDugme"></div></div>
     <div class="satir"><button id="anonim">Misafir olarak başla</button><button id="ben">Ben</button><button id="yas">13+ onayla</button></div>
     <div class="satir"><input id="eposta" placeholder="e-posta" autocomplete="email"><button id="kodGonder">Kod gönder</button></div>
     <div class="satir"><input id="kod" placeholder="6 haneli kod" inputmode="numeric"><button id="kodGir">Kodla gir</button></div>
@@ -73,7 +73,7 @@
 <script type="module">
   import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm";
   import { webDepo, kayitDeposu, cihazKimligi } from "../dist/kayit/index.js";
-  import { hesapBaslat } from "../dist/hesap/index.js";
+  import { hesapBaslat, googleDugmesi } from "../dist/hesap/index.js";
   import { siralamaBaslat, istanbulGunu } from "../dist/siralama/index.js";
   import { olcumBaslat } from "../dist/olcum/index.js";
 
@@ -104,7 +104,13 @@
   });
 
   dugme("anonim", () => hesap.anonimGir());
-  dugme("google", () => hesap.webIleGir("google", location.origin + location.pathname + location.search));
+  // Google'ın kendi düğmesi: oyuncu Supabase adresini değil bu sayfanın adresini görür.
+  googleDugmesi(hesap, {
+    clientId: "104092866938-o606eoqcqkjh38mdo00kg8baate5kcoi.apps.googleusercontent.com",
+    kap: $("googleDugme"),
+    sonuc: async (r) => { yaz("Google ile giriş", r); await oturumGoster(); },
+    hata: (e) => yaz("Google HATA", e?.message ?? String(e)),
+  }).catch((e) => yaz("Google düğmesi yüklenemedi", e?.message ?? String(e)));
   dugme("ben", () => hesap.ben());
   dugme("yas", () => hesap.yasOnayla());
   dugme("kodGonder", () => hesap.epostaKoduGonder($("eposta").value.trim()));

@@ -181,3 +181,72 @@ export function hesapBaslat(a: HesapAyari) {
 }
 
 export type Hesap = ReturnType<typeof hesapBaslat>;
+
+// ---------------------------------------------------------------- web: Google'ın kendi düğmesi
+
+/**
+ * Tek kullanımlık nonce: `ozet` (SHA-256, hex) Google'a, `ham` Supabase'e verilir. Supabase jetondaki
+ * özetin ham değerden üretildiğini denetler; çalınan jeton başka oturumda kullanılamaz.
+ */
+export async function googleNonce(): Promise<{ ham: string; ozet: string }> {
+  const b = crypto.getRandomValues(new Uint8Array(32));
+  const ham = Array.from(b, (x) => x.toString(16).padStart(2, "0")).join("");
+  const h = new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(ham)));
+  return { ham, ozet: Array.from(h, (x) => x.toString(16).padStart(2, "0")).join("") };
+}
+
+interface GoogleKimlik {
+  initialize(o: Record<string, unknown>): void;
+  renderButton(kap: HTMLElement, o: Record<string, unknown>): void;
+}
+let gsiYukleniyor: Promise<GoogleKimlik> | undefined;
+function gsiYukle(): Promise<GoogleKimlik> {
+  const hazir = () => (globalThis as { google?: { accounts?: { id?: GoogleKimlik } } }).google?.accounts?.id;
+  return (gsiYukleniyor ??= new Promise((tamam, hata) => {
+    if (hazir()) return tamam(hazir()!);
+    const s = document.createElement("script");
+    s.src = "https://accounts.google.com/gsi/client";
+    s.async = true;
+    s.onload = () => (hazir() ? tamam(hazir()!) : hata(new Error("google_yuklenemedi")));
+    s.onerror = () => {
+      gsiYukleniyor = undefined;
+      hata(new Error("google_yuklenemedi"));
+    };
+    document.head.appendChild(s);
+  }));
+}
+
+export interface GoogleDugmesiAyari {
+  /** Google Cloud'daki Web istemcisinin Client ID'si (gizli değil). */
+  clientId: string;
+  /** Düğmenin çizileceği öğe. */
+  kap: HTMLElement;
+  sonuc: (r: GirisSonucu) => void;
+  hata?: (e: unknown) => void;
+  metin?: "continue_with" | "signin_with" | "signup_with";
+}
+
+/**
+ * Web'de "Google ile devam et": Google Identity Services düğmesi. Yönlendirmeli girişten farkı, oyuncunun
+ * Supabase adresini değil oyunun kendi adresini görmesi. Jeton sayfaya gelir, `idTokenIleGir` ile Supabase'e
+ * iletilir; misafir verisinin devri aynı yoldan işler. Sayfanın adresi Google istemcisinin
+ * "Authorized JavaScript origins" listesinde olmalıdır.
+ */
+export async function googleDugmesi(hesap: Hesap, a: GoogleDugmesiAyari): Promise<void> {
+  const gsi = await gsiYukle();
+  const { ham, ozet } = await googleNonce();
+  gsi.initialize({
+    client_id: a.clientId,
+    nonce: ozet,
+    use_fedcm_for_prompt: true,
+    callback: async (yanit: { credential?: string }) => {
+      try {
+        if (!yanit.credential) throw new Error("google_jeton_yok");
+        a.sonuc(await hesap.idTokenIleGir("google", yanit.credential, ham));
+      } catch (e) {
+        a.hata?.(e);
+      }
+    },
+  });
+  gsi.renderButton(a.kap, { theme: "outline", size: "large", shape: "pill", text: a.metin ?? "continue_with", locale: "tr" });
+}
