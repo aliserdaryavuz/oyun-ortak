@@ -291,3 +291,21 @@ Kabul ölçütleri (SUPABASE_BIRLESTIRME'den):
 ## 12. Onay için açık konular
 
 1. Ortak alan adının adı (alınınca SMTP ve sayfalar oraya geçer). v0.1 geliştirmesini bağlamaz.
+
+## 13. Durum (13 Kasım 2026)
+
+Biten: v0.1.0 ve v0.2.0 etiketli; `oyun-canli` ve `oyun-test` kurulu (göçler, Auth, Google, Resend SMTP, ödeme webhook'u); PostHog bağlı; Halka'nın bugünkü şeması ve verisi `oyun-canli`'da.
+
+Kalan, bu depoda:
+- **Beat Greedy (sezgi) göçleri:** eski projesi silindi (veri `_ortak/arsiv/beat-greedy-2026-11-12`). 10 göçü `sezgi` şemasına yeniden yazılacak; `dogrula-sezgi` ve istemci ayarı sezgi oturumunda. Canlı kullanıcı yok, acelesi yok.
+- **Halka kalıcı geçişi:** `hk_` → `ortak` + `halka` (docs/GECIS.md §2–3). Önce Halka oturumu yeni adrese geçmeli (GECIS §0).
+- **v0.3:** şikâyet/gizleme (KH-5); davet kodlu özel lig (sezgi) başka oyun isterse ortağa alınır.
+- **Sunucu push (FCM/APNs):** Firebase projesi açılınca.
+
+Kalan, Serdar'da:
+- Google onay ekranını "In production"a almak (Halka'nın 1 Aralık yayınından önce).
+- RevenueCat hesabı (Play Console aktifleşince); webhook'a `.oyun-ortak/odeme-webhook.env` değeri girilir.
+- Ortak stüdyo alan adı (gönderen adres, onay ekranı, ortak sayfalar).
+- Apple Developer (Apple ile giriş, iOS).
+
+Bilgi: Araç Defterim uygulamasının arka ucu yok (proje silindi; veri `_ortak/arsiv/arac-karnesi-2026-11-12`).
