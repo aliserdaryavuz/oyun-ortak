@@ -433,3 +433,59 @@ enabled = true
 # formatted with uppercase keywords, indent 2, max width 180, trailing commas,
 # and column/key alignment. Set to "null" to emit raw, unformatted SQL.
 # format_options = "{\"keywordCase\":\"upper\",\"indent\":2,\"maxWidth\":180,\"commaStyle\":\"trailing\"}"
+
+# ---------------------------------------------------------------- bulut projeleri
+# Yukarıdaki ayarlar yerel yığın içindir. Bulut projelerine `npx supabase config push --remote=<ref>` ile gider;
+# aşağıdaki bölümler yerel değerleri ezer. Gizli değerler (OAuth sırrı, SMTP parolası) buraya yazılmaz,
+# env(...) ile yayın anındaki ortam değişkeninden okunur.
+
+[remotes.canli]
+project_id = "qzxchutjzhyzzaoxzroh"
+
+[remotes.canli.auth]
+site_url = "https://www.halkakelime.com"
+# Yalnız bize ait alan adları ve uygulama şemaları. Geniş desen (ör. *.pages.dev) giriş jetonunu başkasının sitesine yollayabilir.
+additional_redirect_urls = [
+  "https://www.halkakelime.com/**",
+  "https://halkakelime.com/**",
+  "com.halkakelime.app://**",
+]
+
+# Şablon özel SMTP gelene kadar gönderilmez (free planda yalnız SMTP ile değiştirilebilir).
+[remotes.canli.auth.email.template.magic_link]
+subject = "Your sign-in link"
+content_path = ""
+
+[remotes.canli.auth.email.template.confirmation]
+subject = "Confirm your email address"
+content_path = ""
+
+[remotes.canli.auth.rate_limit]
+email_sent = 30
+anonymous_users = 60
+sign_in_sign_ups = 30
+token_verifications = 30
+token_refresh = 150
+
+[remotes.test]
+project_id = "vbygbyurswjjmiqrhvmo"
+
+[remotes.test.auth]
+site_url = "http://127.0.0.1:5173"
+additional_redirect_urls = ["http://127.0.0.1:5173/**", "http://localhost:5173/**"]
+
+# Şablon özel SMTP gelene kadar gönderilmez (free planda yalnız SMTP ile değiştirilebilir).
+[remotes.test.auth.email.template.magic_link]
+subject = "Your sign-in link"
+content_path = ""
+
+[remotes.test.auth.email.template.confirmation]
+subject = "Confirm your email address"
+content_path = ""
+
+[remotes.test.auth.rate_limit]
+email_sent = 30
+anonymous_users = 200
+sign_in_sign_ups = 100
+token_verifications = 100
+token_refresh = 150

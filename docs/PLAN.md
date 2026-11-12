@@ -9,9 +9,9 @@ Kaynaklar: `_ortak/ORTAK_MODUL.md`, `_ortak/PAZAR_OLCUTLERI.md`, `_ortak/SUPABAS
 | Depo | `aliserdaryavuz/oyun-ortak`, **açık** GitHub deposu |
 | Paket yöneticisi | **npm** |
 | Bölge | **Frankfurt (eu-central-1)** |
-| `oyun-canli` | **Yeni Frankfurt projesi.** arac-karnesi projesi (`qqdf…`) yalnız arac-karnesi'ye kalır. Halka 1 Aralık'ta bugünkü düzeniyle (arac-karnesi projesinde) çıkar; `oyun-canli`'ya kendi geçişinde (Adım C) taşınır. 1 Aralık bu depoyu bağlamaz (Serdar, 12 Kasım). |
-| Beat Greedy'nin Londra projesi | Şema dökümü alınır, **silinir** (silme anında ayrıca onay). Boşalan hak `oyun-canli`'ya gider. |
-| `oyun-test` | 2 proje sınırı yüzünden bulut projesi değil: Supabase'in kopyası **GitHub Actions'ta** (açık depoda ücretsiz) her gönderimde kurulup testler koşar. Geliştirme oturumunda geçici olarak yerel Docker kullanılır; Serdar'ın bilgisayarında sürekli bir şey çalışmaz (Serdar, 12 Kasım). Kapalı test `oyun-canli`'da test etiketiyle yapılır. |
+| Supabase projeleri (12 Kasım, uygulandı) | `oyun-canli` = `qzxchutjzhyzzaoxzroh`, `oyun-test` = `vbygbyurswjjmiqrhvmo`, ikisi de Frankfurt. beat-greedy, arac-karnesi ve eczane-panosu projeleri verileri `_ortak/arsiv/` altına aktarılıp silindi (Serdar'ın onayıyla). Araç Defterim uygulamasının arka ucu artık yok. |
+| Halka | Bugünkü şeması `oyun-canli`'da (`20261113000200_halka_baslangic.sql`, `public`, `hk_` adları); bulmacalar ve ölçüm köprüsü arşivden yüklendi. 1 Aralık'ta doğrudan `oyun-canli`'da çıkar; sonradan kullanıcı taşıma gerekmez. |
+| Testler | Her gönderimde GitHub Actions'ta yerel Supabase kopyasıyla; `oyun-test` bulutta önizleme ve elle deneme için. |
 | E-posta alan adı | **Nötr ortak alan adı alınacak** (Cloudflare Registrar, yılda ~10–15 $). Ad Serdar'dan bekleniyor. Alınana kadar Halka'nın `halkakelime.com` Resend ayarı geçici gönderen olur. Aynı alan adı gizlilik/KVKK, hesap silme ve etkinlik takvimi sayfalarını taşır. |
 | Misafir | **Supabase anonim oturumu, ilk çevrimiçi işte** (ilk skor gönderimi vb.) açılır. Google/Apple/e-posta bağlanınca aynı kullanıcı kimliği kalır. Bağlanmamış anonim hesaplar 90 gün hareketsizlikte silinir. |
 | Takma ad | **Oyun başına.** Benzersizlik ve 30 günlük değiştirme sınırı oyun içinde. |

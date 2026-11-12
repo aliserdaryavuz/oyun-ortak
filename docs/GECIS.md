@@ -1,6 +1,18 @@
 # Halka Kelime geçişi (taslak)
 
-Okuyucu: Halka Kelime oturumu ve Serdar. Durum: 1 Aralık 2026'da Halka bugünkü düzeniyle web'e çıkar. Bugünkü düzen, arac-karnesi'nin Frankfurt projesi `qqdf…`, `public` şeması ve `hk_` önekli nesneler. Bu geçiş daha sonra, `oyun-canli` açıldığında yapılır.
+Okuyucu: Halka Kelime oturumu ve Serdar.
+
+## 0. Şimdi (12 Kasım 2026): eski proje silindi, Halka oyun-canli'da
+
+arac-karnesi projesi (`qqdf…`) silindi. Halka'nın bugünkü şeması değişmeden `oyun-canli`'ya kuruldu (`supabase/migrations/20261113000200_halka_baslangic.sql`, `public`, `hk_` adları). 365 günlük bulmaca, yükleme belirteci (`hk_admin`), `hk_plays` ve `hk_errors` arşivden yüklendi. 1 Aralık yayını doğrudan `oyun-canli`'da olur.
+
+Halka deposunda yapılacaklar:
+1. Ortam değişkenleri: `VITE_SUPABASE_URL=https://qzxchutjzhyzzaoxzroh.supabase.co`; anon anahtarı `npx supabase projects api-keys --remote=qzxchutjzhyzzaoxzroh` ile alınır. Önizleme için `oyun-test` (`vbygbyurswjjmiqrhvmo`) kullanılır; aynı şema orada da var.
+2. `hk-push`: VAPID gizlileri `oyun-canli`'ya tanımlanır, fonksiyon Halka deposundan yayınlanır, saatlik cron kurulur (push.sql'deki yorumlu örnek).
+3. Giriş: Google sağlayıcısı ve SMTP `oyun-canli`'da yeniden kurulana kadar (oyun-ortak oturumu, Serdar'la) Google ve e-posta kodu çalışmaz.
+4. `hk_delete_account` artık auth kaydını yalnız oyuncunun başka oyunda izi yoksa siler.
+
+Aşağıdaki bölümler kalıcı geçiş içindir (`hk_` → `ortak` + `halka`).
 
 ## 1. Önce kapatılacak açıklar (Halka deposunda, geçişten bağımsız)
 
@@ -33,9 +45,6 @@ Okuyucu: Halka Kelime oturumu ve Serdar. Durum: 1 Aralık 2026'da Halka bugünk�
    - `halka` şeması göçü: `gunluk_bulmacalar`, `oyuncu_verisini_sil`.
    - Etkinlik sıralaması (HK-3) `tur = "etkinlik"`, `donem = <etkinlik_id>` ile hazır.
 2. **Halka deposunda:** `src/altyapi/`, `dogrula-halka` (motorun `equivalentStates` okuma kuralıyla), Google/Apple düğmeleri. `tests/sql.test.ts` senaryoları `dogrula-halka`'ya karşı yeniden yazılır.
-3. **Veri taşıma (canlı kullanıcı olduğu için ayrıca onay ister):**
-   - Halka kullanıcıları (`hk_profiles`'ta satırı olanlar) eski projeden dışa aktarılır: `auth.users` + `auth.identities` satırları `pg_dump --data-only`, aynı UUID'lerle. arac-karnesi'nin kendi kullanıcısı taşınmaz.
-   - `hk_profiles` → `ortak.oyuncular`, `hk_daily_scores` → `ortak.skorlar` (`run_id` yeni), `hk_level_progress` → `ortak.kayitlar` (kullanıcı başına tek blob).
-   - Oturumlar yeni projede geçersiz olur. Oyuncular bir kez yeniden girer; Google ile girenler aynı kimliğe düşer.
-4. **Geçiş:** Önizleme derlemesi `oyun-canli`'ya bağlanır ve denenir. Sonra yayın. Bir hafta paralel izlenir.
-5. **Temizlik:** arac-karnesi projesinden `hk_` nesneleri kaldırılır. Bunun için arac-karnesi oturumuna not düşülür ve Serdar onaylar.
+3. **Veri taşıma (aynı veritabanı içinde, ayrıca onay ister):** `hk_profiles` → `ortak.oyuncular`, `hk_daily_scores` → `ortak.skorlar` (`run_id` yeni), `hk_level_progress` → `ortak.kayitlar` (kullanıcı başına tek blob). Kullanıcılar aynı projede kaldığı için auth taşıması yok.
+4. **Geçiş:** Önizleme derlemesi `oyun-test`'te denenir, sonra yayın.
+5. **Temizlik:** `public.hk_` nesneleri kaldıran göç (istemcinin eski sürümleri yeterince azalınca).
