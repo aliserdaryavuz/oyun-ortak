@@ -454,20 +454,23 @@ additional_redirect_urls = [
   "com.halkakelime.app://**",
 ]
 
-# Şablon özel SMTP gelene kadar gönderilmez (free planda yalnız SMTP ile değiştirilebilir).
 [remotes.canli.auth.email]
 # Oyunlarda parola yok (giriş: e-posta kodu, Google, Apple). Yine de parolalı kayıt yolu başkasının e-postasını
 # onaysız sahiplenmesin: onay açık (kodla giriş onayı kendisi yapar), parola değişikliği güvenli.
 enable_confirmations = true
 secure_password_change = true
 
-[remotes.canli.auth.email.template.magic_link]
-subject = "Your sign-in link"
-content_path = ""
-
-[remotes.canli.auth.email.template.confirmation]
-subject = "Confirm your email address"
-content_path = ""
+# Giriş kodu e-postası Resend üzerinden. Geçici gönderen halkakelime.com; ortak alan adı alınınca değişir.
+# Anahtar depoda değil: kullanıcı klasöründeki .oyun-ortak/resend.env içindeki RESEND_API_KEY.
+# Türkçe kod şablonu (yukarıdaki [auth.email.template.*]) SMTP ile birlikte buluta da gider.
+[remotes.canli.auth.email.smtp]
+enabled = true
+host = "smtp.resend.com"
+port = 465
+user = "resend"
+pass = "env(RESEND_API_KEY)"
+admin_email = "giris@halkakelime.com"
+sender_name = "Halka Kelime"
 
 # Google ile giriş. Sır depoda değil: kullanıcı klasöründeki .oyun-ortak/google.env içindeki GOOGLE_CLIENT_SECRET,
 # gönderim anında ortamdan okunur. Android yerel girişinin istemci kimlikleri ileride client_id'ye virgülle eklenir.
@@ -494,20 +497,23 @@ minimum_password_length = 12
 site_url = "http://127.0.0.1:5173"
 additional_redirect_urls = ["http://127.0.0.1:5173/**", "http://localhost:5173/**"]
 
-# Şablon özel SMTP gelene kadar gönderilmez (free planda yalnız SMTP ile değiştirilebilir).
 [remotes.test.auth.email]
 # Oyunlarda parola yok (giriş: e-posta kodu, Google, Apple). Yine de parolalı kayıt yolu başkasının e-postasını
 # onaysız sahiplenmesin: onay açık (kodla giriş onayı kendisi yapar), parola değişikliği güvenli.
 enable_confirmations = true
 secure_password_change = true
 
-[remotes.test.auth.email.template.magic_link]
-subject = "Your sign-in link"
-content_path = ""
-
-[remotes.test.auth.email.template.confirmation]
-subject = "Confirm your email address"
-content_path = ""
+# Giriş kodu e-postası Resend üzerinden. Geçici gönderen halkakelime.com; ortak alan adı alınınca değişir.
+# Anahtar depoda değil: kullanıcı klasöründeki .oyun-ortak/resend.env içindeki RESEND_API_KEY.
+# Türkçe kod şablonu (yukarıdaki [auth.email.template.*]) SMTP ile birlikte buluta da gider.
+[remotes.test.auth.email.smtp]
+enabled = true
+host = "smtp.resend.com"
+port = 465
+user = "resend"
+pass = "env(RESEND_API_KEY)"
+admin_email = "giris@halkakelime.com"
+sender_name = "Halka Kelime"
 
 # Google ile giriş. Sır depoda değil: kullanıcı klasöründeki .oyun-ortak/google.env içindeki GOOGLE_CLIENT_SECRET,
 # gönderim anında ortamdan okunur. Android yerel girişinin istemci kimlikleri ileride client_id'ye virgülle eklenir.
