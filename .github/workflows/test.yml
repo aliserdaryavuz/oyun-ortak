@@ -15,5 +15,6 @@ jobs:
       # oyun-test: yerel Supabase yığını GitHub'ın makinesinde (Docker) kurulur; göçler ve tohum baştan uygulanır.
       # Webhook testleri için yalnız CI'da kullanılan sahte sır (gerçek sır bulut projelerinde).
       - run: echo "ODEME_WEBHOOK_SIRRI=yerel-test-sirri" > supabase/functions/.env
-      - run: npx supabase start
+      # Runner'ın geçici giden bağlantıları 553xx portlarından birini anlık tutabiliyor; bir kez yeniden dene.
+      - run: npx supabase start || (npx supabase stop --no-backup; sleep 5; npx supabase start)
       - run: npm run test:sunucu
