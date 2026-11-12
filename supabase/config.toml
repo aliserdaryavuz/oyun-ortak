@@ -443,6 +443,9 @@ enabled = true
 project_id = "qzxchutjzhyzzaoxzroh"
 
 [remotes.canli.auth]
+# Anonim oturum bilinçli olarak açık: misafir oyuncu sıralamaya girer (PLAN §1).
+enable_anonymous_sign_ins = true
+minimum_password_length = 12
 site_url = "https://www.halkakelime.com"
 # Yalnız bize ait alan adları ve uygulama şemaları. Geniş desen (ör. *.pages.dev) giriş jetonunu başkasının sitesine yollayabilir.
 additional_redirect_urls = [
@@ -452,6 +455,12 @@ additional_redirect_urls = [
 ]
 
 # Şablon özel SMTP gelene kadar gönderilmez (free planda yalnız SMTP ile değiştirilebilir).
+[remotes.canli.auth.email]
+# Oyunlarda parola yok (giriş: e-posta kodu, Google, Apple). Yine de parolalı kayıt yolu başkasının e-postasını
+# onaysız sahiplenmesin: onay açık (kodla giriş onayı kendisi yapar), parola değişikliği güvenli.
+enable_confirmations = true
+secure_password_change = true
+
 [remotes.canli.auth.email.template.magic_link]
 subject = "Your sign-in link"
 content_path = ""
@@ -471,10 +480,19 @@ token_refresh = 150
 project_id = "vbygbyurswjjmiqrhvmo"
 
 [remotes.test.auth]
+# Anonim oturum bilinçli olarak açık: misafir oyuncu sıralamaya girer (PLAN §1).
+enable_anonymous_sign_ins = true
+minimum_password_length = 12
 site_url = "http://127.0.0.1:5173"
 additional_redirect_urls = ["http://127.0.0.1:5173/**", "http://localhost:5173/**"]
 
 # Şablon özel SMTP gelene kadar gönderilmez (free planda yalnız SMTP ile değiştirilebilir).
+[remotes.test.auth.email]
+# Oyunlarda parola yok (giriş: e-posta kodu, Google, Apple). Yine de parolalı kayıt yolu başkasının e-postasını
+# onaysız sahiplenmesin: onay açık (kodla giriş onayı kendisi yapar), parola değişikliği güvenli.
+enable_confirmations = true
+secure_password_change = true
+
 [remotes.test.auth.email.template.magic_link]
 subject = "Your sign-in link"
 content_path = ""
