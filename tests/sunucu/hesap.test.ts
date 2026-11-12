@@ -192,19 +192,26 @@ test("e-posta koduyla giriş (gerçek yol, Mailpit)", async () => {
   await h.anonimGir();
   await h.ben();
   const eposta = rastgeleEposta();
-  await h.epostaKoduGonder(eposta);
+  // Auth servisi şablonu açılışta uzaktan çeker; CI'da ilk denemede alamazsa varsayılan (kodsuz) şablona
+  // düşebiliyor. Kodsuz ileti gelirse yeniden istenir.
   let kod: string | undefined;
   let son = "";
-  for (let i = 0; i < 60 && !kod; i++) {
-    await new Promise((r) => setTimeout(r, 500));
-    const liste = (await (await fetch(`${MAILPIT}/api/v1/messages?limit=50`)).json()) as {
-      messages: { ID: string; To: { Address: string }[] }[];
-    };
-    const id = liste.messages.find((m) => m.To.some((t) => t.Address === eposta))?.ID;
-    if (id) {
+  const gorulen = new Set<string>();
+  for (let deneme = 0; deneme < 4 && !kod; deneme++) {
+    if (deneme > 0) await new Promise((r) => setTimeout(r, 3000));
+    await h.epostaKoduGonder(eposta);
+    for (let i = 0; i < 30; i++) {
+      await new Promise((r) => setTimeout(r, 500));
+      const liste = (await (await fetch(`${MAILPIT}/api/v1/messages?limit=50`)).json()) as {
+        messages: { ID: string; To: { Address: string }[] }[];
+      };
+      const id = liste.messages.find((m) => !gorulen.has(m.ID) && m.To.some((t) => t.Address === eposta))?.ID;
+      if (!id) continue;
+      gorulen.add(id);
       const m = (await (await fetch(`${MAILPIT}/api/v1/message/${id}`)).json()) as { Text: string; Subject: string };
-      son = `${m.Subject}: ${m.Text.slice(0, 200)}`;
+      son = `${m.Subject}: ${m.Text.slice(0, 120).replace(/\s+/g, " ")}`;
       kod = /\b(\d{6})\b/.exec(m.Text)?.[1];
+      break;
     }
   }
   assert.ok(kod, `kod e-postası gelmedi; son ileti: ${son || "yok"}`);
