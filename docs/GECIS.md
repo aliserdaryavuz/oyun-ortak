@@ -12,6 +12,8 @@ Halka deposunda yapılacaklar:
 3. Giriş: Google sağlayıcısı ve SMTP `oyun-canli`'da yeniden kurulana kadar (oyun-ortak oturumu, Serdar'la) Google ve e-posta kodu çalışmaz.
 4. `hk_delete_account` artık auth kaydını yalnız oyuncunun başka oyunda izi yoksa siler.
 
+5. Halka'nın ortak kaydı hazır (`20261115000000_halka_ortak.sql`): ad kuralları (2–20), lig (Toprak…Firuze, en iyi 5 gün, eşitlikte süre), sıralama (süre az olan önde), bağlama ödülü `desen-porselen`, ürün `paket_tam`. Halka ortak paketlere (`odeme`, `olcum`, `etkinlik`, `geri-bildirim`, `bildirim`, Google düğmesi) `hk_` tablolarını bırakmadan geçebilir. "Bu oyundaki verimi sil" (`ortak.oyun_verisini_sil('halka')`) hk_ tablolarını da temizler.
+
 Aşağıdaki bölümler kalıcı geçiş içindir (`hk_` → `ortak` + `halka`).
 
 ## 1. Önce kapatılacak açıklar (Halka deposunda, geçişten bağımsız)

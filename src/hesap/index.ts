@@ -169,6 +169,15 @@ export function hesapBaslat(a: HesapAyari) {
       };
     },
 
+    /**
+     * Sıralamada görünen adla şikâyet (KH-5). Yalnız kalıcı hesaplar şikâyet edebilir. 'ad' şikâyeti eşiğe
+     * ulaşınca hedefin adı sıfırlanır; 'hile' ve 'diger' inceleme için kaydedilir. Günde en çok 20.
+     */
+    sikayetEt: (ad: string, neden: "ad" | "hile" | "diger") =>
+      rpc<{ durum: "ok" | "zaten" | "bulunamadi" | "kendin"; ad_sifirlandi?: boolean }>("sikayet_et", {
+        p_oyun: a.oyunId, p_ad: ad, p_neden: neden,
+      }),
+
     hesapOzeti: () => rpc<{ oyun_id: string; ad: string }[]>("hesap_ozeti"),
     /** "Bu oyundaki verimi sil": hesap ve öbür oyunlar kalır. */
     buOyundanSil: () => rpc<void>("oyun_verisini_sil", { p_oyun: a.oyunId }),

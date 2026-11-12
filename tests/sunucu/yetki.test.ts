@@ -10,7 +10,7 @@ const IZINLI = {
   authenticated: [
     "ad_anahtari", "ad_bicimi", "ad_degistir", "ad_uygun", "baglama_odulu_al", "ben", "bugun", "devir_kodu_al",
     "hakki_var", "haklarim", "hesabi_sil", "hesap_devral", "hesap_ozeti", "iso_hafta", "kayit_oku", "kayit_yaz",
-    "lig_durumu", "odul_kaydet", "odullerim", "otomatik_ad", "oyun_verisini_sil", "siralama", "yas_onayla",
+    "lig_durumu", "odul_kaydet", "odullerim", "otomatik_ad", "oyun_verisini_sil", "sikayet_et", "siralama", "yas_onayla",
   ],
 };
 

@@ -163,6 +163,17 @@ Davranış:
 - **Koşul:** `{ sayac: { ad: "cozum", esik: 5 } }` ve/veya `{ gun: 7 }` (ilk açılıştan bu yana).
 - **Gönderim:** cevaplar PostHog'a `geri_bildirim` olayı olarak gider. Serbest metin 200 karakterde kesilir; kişisel veri istenmez.
 
+### Şikâyet (`hesap.sikayetEt`, v0.3)
+
+- **Kullanım:** `hesap.sikayetEt(ad, "ad" | "hile" | "diger")`. Sıralama ya da lig satırındaki adla çağrılır; oyuncu kimliği istemciye hiç verilmez.
+- **Kim şikâyet edebilir:** yalnız kalıcı hesaplar (Google, Apple ya da e-posta), günde en çok 20 şikâyet. Anonim hesaplar şikâyet edemez.
+- **Ad şikâyeti:** farklı kalıcı hesaplardan gelen şikâyet sayısı eşiğe ulaşınca hedefin adı sıfırlanır.
+  - Eşik oyunun ayarında: `ayarlar.sikayet.ad_esigi`, varsayılan 3.
+  - Sıralama adsız oyuncuyu gösterirken oyun "Oyuncu" yazar.
+  - Oyuncu hemen yeni ad seçebilir; 30 gün sınırı sıfırlanır.
+- **`hile` ve `diger`:** yalnız kaydedilir. İnceleme Supabase panelinden `ortak.sikayetler` tablosuyla yapılır.
+- **Arkadaş düellosu (KH-5'in diğer yarısı):** oyuna özgü kaldı; Koz Hesabı kendi şemasında yapar.
+
 ### Bildirim (`@oyun/ortak/bildirim`)
 
 - **Kurulum:** `bildirimBaslat({ yerel, depo })`. `yerel`, oyunun yerel bildirim eklentisini (ör. `@capacitor/local-notifications`) saran üç işlev: `izinIste`, `planla`, `iptal`.

@@ -2,6 +2,16 @@
 
 Her sürümde "Oyunlar ne yapmalı" bölümü vardır. Sürümleme semver; `0.x`'te küçük sürüm kırıcı olabilir.
 
+## v0.3.0 (13 Kasım 2026)
+
+- Şikâyet: `hesap.sikayetEt(ad, neden)`; göç `20261115000100_ortak_v03_sikayet.sql` (`ortak.sikayetler`, `ortak.sikayet_et`). Ad şikâyeti eşiğe ulaşınca ad sıfırlanır.
+- Halka'nın ortak kaydı (`20261115000000_halka_ortak.sql`): `ortak.oyunlar('halka')`, ürün `paket_tam`, `halka.oyuncu_verisini_sil`.
+- Beat Greedy şeması (`20261114000100_sezgi.sql`, `20261114000200_sezgi_silme.sql`); bkz. `docs/GECIS_SEZGI.md`.
+
+### Oyunlar ne yapmalı
+- Bağımlılığı `#v0.3.0`'a yükselt; kırıcı değişiklik yok.
+- Sıralama ve lig satırlarına "Şikâyet et" seçeneği eklenebilir. Adı sıfırlanan oyuncu `ben().ad === null` görür; oyun ondan yeni ad seçmesini ister.
+
 ## v0.2.0 (13 Kasım 2026)
 
 Yeni paketler: `odeme`, `etkinlik`, `geri-bildirim`, `bildirim`. Göç `20261114000000_ortak_v02.sql`: `ortak.urunler`, `ortak.haklar`, `ortak.oduller`, `korumali` depolama kovası; `odeme-webhook` Edge Function (RevenueCat).
