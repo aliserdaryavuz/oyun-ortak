@@ -142,18 +142,20 @@ test("e-posta koduyla giriş (gerçek yol, Mailpit)", async () => {
   const eposta = rastgeleEposta();
   await h.epostaKoduGonder(eposta);
   let kod: string | undefined;
-  for (let i = 0; i < 20 && !kod; i++) {
-    await new Promise((r) => setTimeout(r, 250));
-    const liste = (await (await fetch(`${MAILPIT}/api/v1/search?query=to:${encodeURIComponent(eposta)}`)).json()) as {
-      messages: { ID: string }[];
+  let son = "";
+  for (let i = 0; i < 60 && !kod; i++) {
+    await new Promise((r) => setTimeout(r, 500));
+    const liste = (await (await fetch(`${MAILPIT}/api/v1/messages?limit=50`)).json()) as {
+      messages: { ID: string; To: { Address: string }[] }[];
     };
-    const id = liste.messages[0]?.ID;
+    const id = liste.messages.find((m) => m.To.some((t) => t.Address === eposta))?.ID;
     if (id) {
-      const m = (await (await fetch(`${MAILPIT}/api/v1/message/${id}`)).json()) as { Text: string };
-      kod = /\b(\d{6})\b/.exec(m.Text)?.[1];
+      const m = (await (await fetch(`${MAILPIT}/api/v1/message/${id}`)).json()) as { Text: string; Subject: string };
+      son = `${m.Subject}: ${m.Text.slice(0, 200)}`;
+      kod = /(\d{6})/.exec(m.Text)?.[1];
     }
   }
-  assert.ok(kod, "kod e-postası gelmedi");
+  assert.ok(kod, `kod e-postası gelmedi; son ileti: ${son || "yok"}`);
   const r = await h.epostaKoduIleGir(eposta, kod!);
   assert.deepEqual(r, { devredilen: ["deneme"] });
   assert.equal((await h.kullanici())?.eposta, eposta);
