@@ -30,6 +30,11 @@ export type AdSonucu =
 export interface GirisSonucu {
   /** Anonim hesaptan taşınan verinin olduğu oyunlar. */
   devredilen: string[];
+  /**
+   * Skorlar, denemeler ve lig yalnız yeni açılan hesaba taşınır. Var olan hesaba girildiyse false:
+   * misafirken gönderilen skorlar sayılmaz; ad ve bulut kaydı yine taşınır.
+   */
+  skorlarTasindi?: boolean;
   /** Devir kodu süresi dolmuş ya da geçersizse true; anonim hesabın sunucu verisi taşınamadı. */
   devirBasarisiz?: boolean;
 }
@@ -69,8 +74,8 @@ export function hesapBaslat(a: HesapAyari) {
     if (error) throw error instanceof Error ? error : new Error(String((error as { message?: string }).message ?? error));
     if (!kod) return { devredilen: [] };
     try {
-      const r = await rpc<{ oyunlar: string[] }>("hesap_devral", { p_kod: kod });
-      return { devredilen: r.oyunlar };
+      const r = await rpc<{ oyunlar: string[]; skorlar_tasindi: boolean }>("hesap_devral", { p_kod: kod });
+      return { devredilen: r.oyunlar, skorlarTasindi: r.skorlar_tasindi };
     } catch {
       return { devredilen: [], devirBasarisiz: true };
     }
@@ -133,19 +138,13 @@ export function hesapBaslat(a: HesapAyari) {
 
     ben: () => rpc<Ben>("ben", { p_oyun: a.oyunId }),
     yasOnayla: () => rpc<void>("yas_onayla"),
-    adDegistir: (ad: string) => rpc<AdSonucu>("ad_degistir", { p_oyun: a.oyunId, p_ad: ad, p_otomatik: false }),
+    adDegistir: (ad: string) => rpc<AdSonucu>("ad_degistir", { p_oyun: a.oyunId, p_ad: ad }),
 
-    /** Önekli otomatik ad (KM-4, EN-6): "Bekçi4821". Elle seçilmiş adı ezmez, 30 gün hakkını harcamaz. */
-    async otomatikAd(onekler: readonly string[], rastgele: () => number = Math.random): Promise<AdSonucu> {
-      let son: AdSonucu = { durum: "alinmis" };
-      for (let i = 0; i < 6; i++) {
-        const onek = onekler[Math.floor(rastgele() * onekler.length)] ?? "Oyuncu";
-        const ad = `${onek}${1000 + Math.floor(rastgele() * 9000)}`;
-        son = await rpc<AdSonucu>("ad_degistir", { p_oyun: a.oyunId, p_ad: ad, p_otomatik: true });
-        if (son.durum !== "alinmis") return son;
-      }
-      return son;
-    },
+    /**
+     * Otomatik ad (KM-4, EN-6): sunucu oyunun öneklerinden (ayarlar.ad.onekler) üretir, ör. "Bekçi4821".
+     * Yalnız adı olmayan oyuncuya verilir; adı varsa onu döner. 30 gün hakkını harcamaz.
+     */
+    otomatikAd: () => rpc<AdSonucu>("otomatik_ad", { p_oyun: a.oyunId }),
 
     /** İlk kalıcı hesapta bir kez verilen kozmetik ödül kimliği; verildiyse null. */
     baglamaOdulu: () => rpc<string | null>("baglama_odulu_al", { p_oyun: a.oyunId }),

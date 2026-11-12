@@ -9,7 +9,7 @@ const IZINLI = {
   anon: ["ad_anahtari", "ad_bicimi", "ad_uygun", "bugun", "iso_hafta", "siralama"],
   authenticated: [
     "ad_anahtari", "ad_bicimi", "ad_degistir", "ad_uygun", "baglama_odulu_al", "ben", "bugun", "devir_kodu_al",
-    "hesabi_sil", "hesap_devral", "hesap_ozeti", "iso_hafta", "kayit_oku", "kayit_yaz", "lig_durumu",
+    "hesabi_sil", "hesap_devral", "hesap_ozeti", "iso_hafta", "kayit_oku", "kayit_yaz", "lig_durumu", "otomatik_ad",
     "oyun_verisini_sil", "siralama", "yas_onayla",
   ],
 };

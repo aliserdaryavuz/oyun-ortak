@@ -20,7 +20,7 @@ Okuyucu: oyun deposunda çalışan oturum (Aşama 1'e gelmiş oyun). Önce `_ort
 | Cihaz kimliği, test kodu (`?t=`) | `cihazKimligi(depo, testKodu)` |
 | E-posta kodu, kendi oturum jetonu | `@oyun/ortak/hesap` (Supabase Auth: anonim → Google/Apple/e-posta kodu) |
 | Misafir ilerlemesini hesaba bağlama | Devir otomatik; yerel kayıt `bulutKaydi().birlestir(yerel, oyununBirlestirmeIslevi)` |
-| Takma ad, küfür filtresi, 30 gün | `adDegistir`, `otomatikAd(onekler)`; kurallar `ortak.oyunlar.ayarlar.ad` |
+| Takma ad, küfür filtresi, 30 gün | `adDegistir`, `otomatikAd()` (sunucu üretir); kurallar ve önekler `ortak.oyunlar.ayarlar.ad` |
 | Bulut yedeği / eşitleme blob'u | `bulutKaydi()` (≤256 KB, iyimser kilit) |
 | Skor gönderimi, yeniden oynatma, runId | `@oyun/ortak/siralama` → `gonder(govde)` (çevrimdışı kuyruk) + `dogrula-<oyun>` |
 | Sunucuda durum tutan deneme | `c.deneme(anahtar)` (örnek: `supabase/functions/dogrula-deneme`, `olay` dalı) |
@@ -51,7 +51,6 @@ export const oyunConfig = {
   supabaseAnon: import.meta.env.VITE_SUPABASE_ANON_KEY,
   posthogAnahtar: import.meta.env.VITE_POSTHOG_KEY ?? "", // boşsa ölçüm kapalı
   uzantiOlaylar: ["league_joined", "album_card"],
-  adOnekleri: null as string[] | null, // otomatik ad istemeyen oyun null
 } as const;
 ```
 
@@ -106,7 +105,7 @@ Expo (Beat Greedy): depo, AsyncStorage'dan `{ oku: getItem, yaz: setItem, sil: r
 
 ```jsonc
 {
-  "ad":       { "en_az": 3, "en_cok": 16, "degistirme_gun": 30, "yasakli": ["koz"] },
+  "ad":       { "en_az": 3, "en_cok": 16, "degistirme_gun": 30, "yasakli": ["koz"], "onekler": ["Çırak", "Kalfa"] },
   "hesap":    { "baglama_odulu": "desen-porselen", "silme_fonksiyonu": "halka.oyuncu_verisini_sil" },
   "siralama": { "yon": "azalan", "esitlik": "ortak", "dagilim_esigi": 50 },
   "lig":      { "kademeler": ["Çırak", "Kalfa", "Usta", "Başusta", "Üstat"], "grup_boyu": 50,
@@ -123,8 +122,9 @@ Alanların anlamı:
 | `lig` | Yazılmazsa oyunun ligi yoktur |
 | `lig.bant_genisligi` | `> 0` ise gruplar `seviye_puani`'na göre ayrılır (KH-4) |
 | `ad.yasakli` | Oyuna özgü ek yasaklı sözler |
+| `ad.onekler` | Otomatik ad önekleri; yazılmazsa "Oyuncu" |
 
-İstek sınırı fonksiyonun içinde verilir: `istek({ oyunId, kullaniciDakika, oyunDakika })`.
+İstek sınırı fonksiyonun içinde verilir: `istek({ oyunId, kullaniciDakika, oyunDakika })`. Kullanıcı sınırı oyunun bütün doğrulama fonksiyonları için ortaktır.
 
 ## `dogrula-<oyun>`
 

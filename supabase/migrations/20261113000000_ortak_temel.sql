@@ -169,8 +169,8 @@ language sql security definer set search_path = '' as $$
 $$;
 
 -- Takma ad (oyun başına). Dönüş: { durum: ok | bicim | uygunsuz | alinmis | bekle, ad?, bekle_gun? }
--- p_otomatik: istemcinin önekli üreticisi (KM-4, EN-6); oyuncunun elle seçtiği adı ezemez ve 30 gün hakkını harcamaz.
-create function ortak.ad_degistir(p_oyun text, p_ad text, p_otomatik boolean default false) returns jsonb
+-- Elle değiştirme; 30 günde bir (ayar: ad.degistirme_gun). Otomatik ad için `ortak.otomatik_ad`.
+create function ortak.ad_degistir(p_oyun text, p_ad text) returns jsonb
 language plpgsql security definer set search_path = '' as $$
 declare
   u uuid := ortak.kim();
@@ -191,29 +191,53 @@ begin
   insert into ortak.oyuncular (oyun_id, kullanici_id) values (p_oyun, u) on conflict do nothing;
   select * into o from ortak.oyuncular where oyun_id = p_oyun and kullanici_id = u for update;
 
-  if p_otomatik then
-    if o.ad is not null and not o.ad_otomatik then
-      return jsonb_build_object('durum', 'ok', 'ad', o.ad);  -- elle seçilmiş ad korunur
-    end if;
-  else
-    gun := coalesce((a ->> 'degistirme_gun')::int, 30);
-    if o.ad_degisti is not null and o.ad_degisti > now() - make_interval(days => gun) then
-      return jsonb_build_object('durum', 'bekle',
-        'bekle_gun', ceil(extract(epoch from (o.ad_degisti + make_interval(days => gun) - now())) / 86400));
-    end if;
+  gun := coalesce((a ->> 'degistirme_gun')::int, 30);
+  if o.ad_degisti is not null and o.ad_degisti > now() - make_interval(days => gun) then
+    return jsonb_build_object('durum', 'bekle',
+      'bekle_gun', ceil(extract(epoch from (o.ad_degisti + make_interval(days => gun) - now())) / 86400));
   end if;
 
   begin
     update ortak.oyuncular set
       ad = v_ad,
       ad_anahtari = ortak.ad_anahtari(v_ad),
-      ad_otomatik = p_otomatik,
-      ad_degisti = case when p_otomatik then o.ad_degisti else now() end
+      ad_otomatik = false,
+      ad_degisti = now()
     where oyun_id = p_oyun and kullanici_id = u;
   exception when unique_violation then
     return jsonb_build_object('durum', 'alinmis');
   end;
   return jsonb_build_object('durum', 'ok', 'ad', v_ad);
+end $$;
+
+-- Otomatik ad (KM-4, EN-6): sunucu üretir; önekler oyunun ayarından (ad.onekler) + 4 hane.
+-- Yalnız adı olmayan oyuncuya verilir; istemci adın metnini seçemez ve 30 gün hakkı harcanmaz.
+create function ortak.otomatik_ad(p_oyun text) returns jsonb
+language plpgsql security definer set search_path = '' as $$
+declare
+  u uuid := ortak.kim();
+  onekler text[];
+  o ortak.oyuncular;
+  v_ad text;
+begin
+  select coalesce(array(select jsonb_array_elements_text(ayarlar -> 'ad' -> 'onekler')), '{}')
+    into onekler from ortak.oyunlar where id = p_oyun;
+  if not found then raise exception 'oyun_yok'; end if;
+  if cardinality(onekler) = 0 then onekler := array['Oyuncu']; end if;
+  insert into ortak.oyuncular (oyun_id, kullanici_id) values (p_oyun, u) on conflict do nothing;
+  select * into o from ortak.oyuncular where oyun_id = p_oyun and kullanici_id = u for update;
+  if o.ad is not null then return jsonb_build_object('durum', 'ok', 'ad', o.ad); end if;
+  for i in 1..10 loop
+    v_ad := onekler[1 + floor(random() * cardinality(onekler))::int] || (1000 + floor(random() * 9000))::int;
+    begin
+      update ortak.oyuncular set ad = v_ad, ad_anahtari = ortak.ad_anahtari(v_ad), ad_otomatik = true
+        where oyun_id = p_oyun and kullanici_id = u;
+      return jsonb_build_object('durum', 'ok', 'ad', v_ad);
+    exception when unique_violation then
+      null;
+    end;
+  end loop;
+  return jsonb_build_object('durum', 'alinmis');
 end $$;
 
 -- İlk kalıcı hesapta bir kez verilen kozmetik ödül (HK-5, KH-7). Verildiyse ödül kimliği, verilmediyse null.
@@ -315,6 +339,7 @@ declare
   yeni uuid := ortak.kim();
   eski uuid;
   v_oyunlar text[];
+  v_bos boolean;
 begin
   if ortak.anonim() then raise exception 'kalici_hesap_gerekli'; end if;
   delete from ortak.devirler
@@ -324,6 +349,10 @@ begin
   if eski = yeni then return jsonb_build_object('oyunlar', '[]'::jsonb); end if;
 
   select coalesce(array_agg(oyun_id), '{}') into v_oyunlar from ortak.oyuncular where kullanici_id = eski;
+  -- Hedef hesap yeni mi (hiçbir oyunda izi yok)? Var olan hesaba skor taşınmaz: yoksa birkaç anonim
+  -- oturumda günlüğü oynayıp en iyisini ana hesaba taşımak mümkün olurdu.
+  v_bos := not exists (select 1 from ortak.oyuncular where kullanici_id = yeni)
+       and not exists (select 1 from ortak.kayitlar where kullanici_id = yeni);
 
   insert into ortak.profiller (kullanici_id, yas_onay)
     select yeni, yas_onay from ortak.profiller where kullanici_id = eski
@@ -341,8 +370,7 @@ begin
   update ortak.oyuncular y set
     ad = coalesce(y.ad, s.ad),
     ad_anahtari = coalesce(y.ad_anahtari, ortak.ad_anahtari(s.ad)),
-    ad_otomatik = case when y.ad is null then s.ad_otomatik else y.ad_otomatik end,
-    kademe = greatest(y.kademe, s.kademe)
+    ad_otomatik = case when y.ad is null then s.ad_otomatik else y.ad_otomatik end
   from silinen s where y.oyun_id = s.oyun_id and y.kullanici_id = yeni;
 
   -- Bulut kaydı: yeni hesapta yoksa taşınır (varsa istemci yerel kayıtla birleştirir).
@@ -350,11 +378,11 @@ begin
     where e.kullanici_id = eski
       and not exists (select 1 from ortak.kayitlar y where y.oyun_id = e.oyun_id and y.kullanici_id = yeni);
 
-  -- Sıralama tabloları ikinci göçte; onların taşıması `ortak.devir_ek` kancasında.
-  perform ortak.devir_ek(eski, yeni);
+  -- Sıralama tabloları ikinci göçte; onların taşıması `ortak.devir_ek` kancasında (yalnız yeni hesaba).
+  if v_bos then perform ortak.devir_ek(eski, yeni); end if;
 
   delete from auth.users where id = eski;
-  return jsonb_build_object('oyunlar', to_jsonb(v_oyunlar));
+  return jsonb_build_object('oyunlar', to_jsonb(v_oyunlar), 'skorlar_tasindi', v_bos);
 end $$;
 
 -- Sonraki göçler bu kancayı genişletir (create or replace).
@@ -400,7 +428,7 @@ $$;
 -- ---------------------------------------------------------------- istemci yetkileri
 
 grant execute on function
-  ortak.ben(text), ortak.yas_onayla(), ortak.ad_degistir(text, text, boolean), ortak.baglama_odulu_al(text),
+  ortak.ben(text), ortak.yas_onayla(), ortak.ad_degistir(text, text), ortak.otomatik_ad(text), ortak.baglama_odulu_al(text),
   ortak.kayit_oku(text), ortak.kayit_yaz(text, jsonb, integer),
   ortak.devir_kodu_al(), ortak.hesap_devral(text),
   ortak.hesap_ozeti(), ortak.oyun_verisini_sil(text), ortak.hesabi_sil()

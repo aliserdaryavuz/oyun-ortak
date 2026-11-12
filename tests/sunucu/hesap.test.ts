@@ -41,9 +41,15 @@ test("anonim oturum: ben, yaş onayı, otomatik ad", async () => {
   assert.equal(b.ad, null);
   await h.yasOnayla();
   assert.ok((await h.ben()).yas_onay);
-  const r = await h.otomatikAd(["Bekçi", "Çoban"]);
+  const r = await h.otomatikAd();
   assert.equal(r.durum, "ok");
-  assert.match((r as { ad: string }).ad, /^(Bekçi|Çoban)\d{4}$/);
+  const ad = (r as { ad: string }).ad;
+  assert.match(ad, /^(Bekçi|Çoban|Kahveci|Avcı)\d{4}$/);
+  // ikinci çağrı yeni ad üretmez: otomatik yol yeniden adlandırma kapısı değildir
+  assert.deepEqual(await h.otomatikAd(), { durum: "ok", ad });
+  // istemci otomatik yola ad metni veremez
+  const { error } = await h.supabase.schema("ortak").rpc("ad_degistir", { p_oyun: "deneme", p_ad: "Kahveci1", p_otomatik: true });
+  assert.ok(error);
 });
 
 test("takma ad: biçim, uygunsuz söz, Türkçe katlamalı benzersizlik, 30 gün", async () => {
@@ -68,7 +74,7 @@ test("takma ad: biçim, uygunsuz söz, Türkçe katlamalı benzersizlik, 30 gün
     assert.equal((await c.adDegistir(`${iyi}${Math.floor(Math.random() * 1000)}`)).durum, "ok", iyi);
   }
   // otomatik ad elle seçileni ezmez
-  assert.deepEqual(await a.otomatikAd(["Avcı"]), { durum: "ok", ad });
+  assert.deepEqual(await a.otomatikAd(), { durum: "ok", ad });
 });
 
 test("bulut kaydı: iyimser kilit ve birleştirme işlevi", async () => {
@@ -92,13 +98,8 @@ test("bulut kaydı: iyimser kilit ve birleştirme işlevi", async () => {
   await assert.rejects(rpc(h.supabase, "kayit_yaz", { p_oyun: "deneme", p_veri: { x: "y".repeat(270_000) }, p_surum: s + 1 }));
 });
 
-test("misafir → var olan kalıcı hesap: sunucu verisi taşınır, anonim hesap silinir", async () => {
-  const k = await kaliciKullanici();
-  // kalıcı hesabın daha önceki verisi
-  const eski = yeniHesap();
-  await eski.disGiris(() => eski.supabase.auth.signInWithPassword({ email: k.eposta, password: k.parola }));
-  await eski.ben();
-
+/** Misafir olarak ad, bulut kaydı ve bugünün skoru (puan 10) oluşturur. */
+async function misafirOyna() {
   const h = yeniHesap();
   const anonId = await h.anonimGir();
   const ad = `Misafir${Math.floor(Math.random() * 1e6)}`;
@@ -106,15 +107,38 @@ test("misafir → var olan kalıcı hesap: sunucu verisi taşınır, anonim hesa
   await h.bulutKaydi().birlestir({ n: 1 }, (y) => ({ kayit: y }));
   const s = siralamaBaslat({ supabase: h.supabase, oyunId: "deneme", depo: bellekDepo() });
   assert.equal((await s.gonder({ islem: "gunluk", gun: bugun(), kayit: [5, 5], kuralSurumu: 1 })).durum, 200);
+  return { h, s, anonId, ad };
+}
+
+test("misafir → yeni kalıcı hesap: skor dahil her şey taşınır, anonim hesap silinir", async () => {
+  const k = await kaliciKullanici();
+  const { h, s, anonId, ad } = await misafirOyna();
+  const r = await h.disGiris(() => h.supabase.auth.signInWithPassword({ email: k.eposta, password: k.parola }));
+  assert.deepEqual(r, { devredilen: ["deneme"], skorlarTasindi: true });
+  assert.equal((await h.ben()).ad, ad);
+  assert.deepEqual((await h.bulutKaydi().oku())?.veri, { n: 1 });
+  const t = await s.tablo("gunluk", bugun(), { ilk: 100 });
+  assert.equal(t.satirlar.find((x) => x.ben)?.puan, 10);
+  assert.equal((await sql`select count(*)::int as n from auth.users where id = ${anonId}`)[0]!.n, 0);
+});
+
+test("misafir → var olan kalıcı hesap: ad ve kayıt taşınır, skor taşınmaz (en iyisini seçme hilesi)", async () => {
+  const k = await kaliciKullanici();
+  // kalıcı hesabın daha önceki verisi
+  const eski = yeniHesap();
+  await eski.disGiris(() => eski.supabase.auth.signInWithPassword({ email: k.eposta, password: k.parola }));
+  await eski.ben();
+
+  const { h, s, anonId, ad } = await misafirOyna();
 
   const r = await h.disGiris(() => h.supabase.auth.signInWithPassword({ email: k.eposta, password: k.parola }));
-  assert.deepEqual(r, { devredilen: ["deneme"] });
+  assert.deepEqual(r, { devredilen: ["deneme"], skorlarTasindi: false });
   const ben = await h.ben();
   assert.equal(ben.anonim, false);
   assert.equal(ben.ad, ad); // kalıcı hesapta ad yoktu, misafirinki alındı
   assert.deepEqual((await h.bulutKaydi().oku())?.veri, { n: 1 });
   const t = await s.tablo("gunluk", bugun(), { ilk: 100 });
-  assert.equal(t.satirlar.find((x) => x.ben)?.puan, 10);
+  assert.equal(t.satirlar.find((x) => x.ben), undefined);
   const [{ n }] = await sql`select count(*)::int as n from auth.users where id = ${anonId}`;
   assert.equal(n, 0);
   // ödül yalnız kalıcı hesapta ve bir kez
@@ -152,12 +176,12 @@ test("e-posta koduyla giriş (gerçek yol, Mailpit)", async () => {
     if (id) {
       const m = (await (await fetch(`${MAILPIT}/api/v1/message/${id}`)).json()) as { Text: string; Subject: string };
       son = `${m.Subject}: ${m.Text.slice(0, 200)}`;
-      kod = /(\d{6})/.exec(m.Text)?.[1];
+      kod = /\b(\d{6})\b/.exec(m.Text)?.[1];
     }
   }
   assert.ok(kod, `kod e-postası gelmedi; son ileti: ${son || "yok"}`);
   const r = await h.epostaKoduIleGir(eposta, kod!);
-  assert.deepEqual(r, { devredilen: ["deneme"] });
+  assert.deepEqual(r, { devredilen: ["deneme"], skorlarTasindi: true });
   assert.equal((await h.kullanici())?.eposta, eposta);
 });
 

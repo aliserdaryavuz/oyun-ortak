@@ -17,7 +17,7 @@ export type { PencereKurali } from "../src/siralama/zaman.ts";
 
 export interface IstekAyari {
   oyunId: string;
-  /** Kullanıcı başına dakikada istek (varsayılan 30). */
+  /** Kullanıcı başına dakikada istek, oyunun bütün doğrulama fonksiyonları toplam (varsayılan 30). */
   kullaniciDakika?: number;
   /** Oyun başına, bütün kullanıcılar toplam dakikada istek (varsayılan 3000): tek oyunun spam'i ortak kotayı yemesin. */
   oyunDakika?: number;
@@ -144,7 +144,8 @@ export function istek<G = unknown>(ayar: IstekAyari, isle: (c: Baglam<G>) => Pro
         if (error) throw error;
         return data === true;
       };
-      if (!(await hizSiniri(`${ayar.oyunId}:${fn}:${kullanici.id}`, ayar.kullaniciDakika ?? 30, 60)))
+      // Anahtar istek yolundan üretilmez: yola parça eklenerek sınır atlatılamasın.
+      if (!(await hizSiniri(`${ayar.oyunId}:${kullanici.id}`, ayar.kullaniciDakika ?? 30, 60)))
         throw new IstekHatasi(429, "cok_istek");
       if (!(await hizSiniri(`${ayar.oyunId}:toplam`, ayar.oyunDakika ?? 3000, 60)))
         throw new IstekHatasi(429, "cok_istek");
