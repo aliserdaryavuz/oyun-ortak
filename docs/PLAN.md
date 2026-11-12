@@ -297,7 +297,7 @@ Kabul ölçütleri (SUPABASE_BIRLESTIRME'den):
 Biten: v0.1.0 ve v0.2.0 etiketli; `oyun-canli` ve `oyun-test` kurulu (göçler, Auth, Google, Resend SMTP, ödeme webhook'u); PostHog bağlı; Halka'nın bugünkü şeması ve verisi `oyun-canli`'da.
 
 Kalan, bu depoda:
-- **Beat Greedy (sezgi) göçleri:** eski projesi silindi (veri `_ortak/arsiv/beat-greedy-2026-11-12`). 10 göçü `sezgi` şemasına yeniden yazılacak; `dogrula-sezgi` ve istemci ayarı sezgi oturumunda. Canlı kullanıcı yok, acelesi yok.
+- ~~Beat Greedy (sezgi) göçleri~~ (13 Kasım, yapıldı): `20261114000100_sezgi.sql`, `sezgi` şeması, içerik arşivden yüklendi. sezgi oturumunun yapacakları `docs/GECIS_SEZGI.md`'de.
 - **Halka kalıcı geçişi:** `hk_` → `ortak` + `halka` (docs/GECIS.md §2–3). Önce Halka oturumu yeni adrese geçmeli (GECIS §0).
 - **v0.3:** şikâyet/gizleme (KH-5); davet kodlu özel lig (sezgi) başka oyun isterse ortağa alınır.
 - **Sunucu push (FCM/APNs):** Firebase projesi açılınca.
