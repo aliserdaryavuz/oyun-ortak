@@ -2,7 +2,7 @@
 
 Her sürümde "Oyunlar ne yapmalı" bölümü vardır. Sürümleme semver; `0.x`'te küçük sürüm kırıcı olabilir.
 
-## v0.1.0 (yayımlanmadı)
+## v0.1.0 (12 Kasım 2026)
 
 İlk sürüm: `kayit`, `olcum`, `hesap`, `siralama` + `ortak` şeması + Edge Function iskeleti.
 

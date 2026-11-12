@@ -146,6 +146,34 @@ test("misafir → var olan kalıcı hesap: ad ve kayıt taşınır, skor taşın
   assert.equal(await h.baglamaOdulu(), null);
 });
 
+test("var olan hesabın o oyunda satırı yoksa misafirin kademesi taşınmaz, yalnız adı gelir", async () => {
+  await sql`insert into ortak.oyunlar (id, ad) values ('deneme-iki', 'Deneme İki') on conflict do nothing`;
+  const k = await kaliciKullanici();
+  await sql`insert into ortak.oyuncular (oyun_id, kullanici_id) values ('deneme-iki', ${k.id})`; // başka oyunda izi var
+  const { h, anonId, ad } = await misafirOyna();
+  await sql`update ortak.oyuncular set kademe = 4, seviye_puani = 900 where kullanici_id = ${anonId}`;
+  const r = await h.disGiris(() => h.supabase.auth.signInWithPassword({ email: k.eposta, password: k.parola }));
+  assert.equal(r.skorlarTasindi, false);
+  const ben = await h.ben();
+  assert.deepEqual([ben.ad, ben.kademe, ben.seviye_puani], [ad, 0, 0]);
+});
+
+test("aynı hedefe eş zamanlı iki devir: skorları en çok biri taşır", async () => {
+  const k = await kaliciKullanici();
+  const a = await misafirOyna();
+  const b = await misafirOyna();
+  const kodA = await rpc<string>(a.h.supabase, "devir_kodu_al");
+  const kodB = await rpc<string>(b.h.supabase, "devir_kodu_al");
+  await a.h.supabase.auth.signInWithPassword({ email: k.eposta, password: k.parola });
+  await b.h.supabase.auth.signInWithPassword({ email: k.eposta, password: k.parola });
+  const sonuclar = await Promise.all([
+    rpc<{ skorlar_tasindi: boolean }>(a.h.supabase, "hesap_devral", { p_kod: kodA }),
+    rpc<{ skorlar_tasindi: boolean }>(b.h.supabase, "hesap_devral", { p_kod: kodB }),
+  ]);
+  assert.equal(sonuclar.filter((s) => s.skorlar_tasindi).length, 1);
+  assert.equal((await sql`select count(*)::int as n from ortak.skorlar where kullanici_id = ${k.id}`)[0]!.n, 1);
+});
+
 test("anonim hesap ödül alamaz; devir kodu tek kullanımlık", async () => {
   const h = yeniHesap();
   await h.anonimGir();

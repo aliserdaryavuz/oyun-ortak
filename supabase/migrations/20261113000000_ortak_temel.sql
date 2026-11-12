@@ -349,29 +349,37 @@ begin
   if eski = yeni then return jsonb_build_object('oyunlar', '[]'::jsonb); end if;
 
   select coalesce(array_agg(oyun_id), '{}') into v_oyunlar from ortak.oyuncular where kullanici_id = eski;
-  -- Hedef hesap yeni mi (hiçbir oyunda izi yok)? Var olan hesaba skor taşınmaz: yoksa birkaç anonim
-  -- oturumda günlüğü oynayıp en iyisini ana hesaba taşımak mümkün olurdu.
+  -- Aynı hedefe eş zamanlı iki devir ikisi de "boş" görmesin.
+  perform pg_advisory_xact_lock(hashtextextended('devir:' || yeni::text, 0));
+  -- Hedef hesap yeni mi (hiçbir oyunda izi yok)? Var olan hesaba skor, deneme, lig ve kademe taşınmaz:
+  -- yoksa birkaç anonim oturumda oynayıp en iyisini ana hesaba taşımak mümkün olurdu.
   v_bos := not exists (select 1 from ortak.oyuncular where kullanici_id = yeni)
-       and not exists (select 1 from ortak.kayitlar where kullanici_id = yeni);
+       and not exists (select 1 from ortak.kayitlar where kullanici_id = yeni)
+       and not exists (select 1 from ortak.skorlar where kullanici_id = yeni)
+       and not exists (select 1 from ortak.denemeler where kullanici_id = yeni)
+       and not exists (select 1 from ortak.lig_uyeleri where kullanici_id = yeni);
 
   insert into ortak.profiller (kullanici_id, yas_onay)
     select yeni, yas_onay from ortak.profiller where kullanici_id = eski
     on conflict (kullanici_id) do update
       set yas_onay = coalesce(ortak.profiller.yas_onay, excluded.yas_onay);
 
-  -- Oyuncu: yeni hesapta o oyunda satır yoksa taşınır; varsa yeni hesabınki kalır, adı boşsa eski ad alınır.
-  update ortak.oyuncular e set kullanici_id = yeni
-    where e.kullanici_id = eski
-      and not exists (select 1 from ortak.oyuncular y where y.oyun_id = e.oyun_id and y.kullanici_id = yeni);
-  with silinen as (
-    delete from ortak.oyuncular where kullanici_id = eski
-    returning oyun_id, ad, ad_otomatik, kademe
-  )
-  update ortak.oyuncular y set
-    ad = coalesce(y.ad, s.ad),
-    ad_anahtari = coalesce(y.ad_anahtari, ortak.ad_anahtari(s.ad)),
-    ad_otomatik = case when y.ad is null then s.ad_otomatik else y.ad_otomatik end
-  from silinen s where y.oyun_id = s.oyun_id and y.kullanici_id = yeni;
+  -- Oyuncu satırı. Yeni hesaba bütünüyle taşınır. Var olan hesaba yalnız kimlik alanları (ad) gider:
+  -- kademe ve seviye puanı varsayılanda kalır; hedefte o oyunun satırı varsa onunki korunur, adı boşsa eski ad alınır.
+  if v_bos then
+    update ortak.oyuncular set kullanici_id = yeni where kullanici_id = eski;
+  else
+    with silinen as (
+      delete from ortak.oyuncular where kullanici_id = eski
+      returning oyun_id, ad, ad_otomatik
+    )
+    insert into ortak.oyuncular as y (oyun_id, kullanici_id, ad, ad_anahtari, ad_otomatik)
+      select s.oyun_id, yeni, s.ad, ortak.ad_anahtari(s.ad), s.ad_otomatik from silinen s
+    on conflict (oyun_id, kullanici_id) do update set
+      ad = coalesce(y.ad, excluded.ad),
+      ad_anahtari = coalesce(y.ad_anahtari, excluded.ad_anahtari),
+      ad_otomatik = case when y.ad is null then excluded.ad_otomatik else y.ad_otomatik end;
+  end if;
 
   -- Bulut kaydı: yeni hesapta yoksa taşınır (varsa istemci yerel kayıtla birleştirir).
   update ortak.kayitlar e set kullanici_id = yeni
