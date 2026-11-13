@@ -103,6 +103,29 @@ Expo (Beat Greedy): depo, AsyncStorage'dan `{ oku: getItem, yaz: setItem, sil: r
   3. Ardından `baglamaOdulu()` çağrılır.
 - Google ve Apple düğmeleri öne çıkarılır; e-posta kodu "başka yol" altında durur (kesin karar).
 
+#### Giriş düğmeleri: marka kuralları (zorunlu)
+
+Bu düğmeler oyunun paletine boyanmaz ve logoları değiştirilmez. Kurallara uymayan düğme Google OAuth doğrulamasında ve mağaza incelemesinde geri çevrilme nedeni olur. Düğme bileşeni oyunda yaşar, paket arayüz çizmez. Örnek uygulama: sezgi `apps/mobile/src/ui/GoogleButton.tsx`.
+
+**Google** ([Google Identity marka kuralları](https://developers.google.com/identity/branding-guidelines)):
+
+| | Koyu tema | Açık tema |
+|---|---|---|
+| Zemin | `#131314` | `#FFFFFF` |
+| 1 px kenar | `#8E918F` | `#747775` |
+| Yazı | `#E3E3E3` | `#1F1F1F` |
+
+- Standart dört renkli "G" kullanılır (`#EA4335`, `#4285F4`, `#FBBC05`, `#34A853`). Logo 20 px boyunda olur ve yazıdan 10 px önde durur.
+- Yazı Roboto Medium 14 olur. Roboto yalnız bu düğme için yüklenir.
+- Köşe yarıçapı 4 px. Yükseklik en az 40; dokunma hedefi için 44 önerilir.
+- Metin "Google ile devam et" ya da "Continue with Google" olur.
+
+**Apple** ([Sign in with Apple HIG](https://developer.apple.com/design/human-interface-guidelines/sign-in-with-apple)):
+
+- Üç biçimden biri kullanılır: siyah, beyaz ya da beyaz zemin üstüne siyah kenarlı. Başka renk kullanılmaz.
+- Apple logosu ve "Apple ile devam et" ya da "Continue with Apple" metni kullanılır. iOS'ta sistemin `ASAuthorizationAppleIDButton` düğmesi tercih edilir.
+- Düğme Google düğmesiyle aynı boyda olur ve ondan daha az öne çıkarılmaz. App Store 4.8 kuralı gereği, iOS'ta Google girişi sunan oyun Apple girişini de sunar.
+
 ## v0.2 paketleri
 
 ### Ödeme (`@oyun/ortak/odeme`)
