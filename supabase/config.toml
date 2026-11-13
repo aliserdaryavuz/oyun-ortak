@@ -456,6 +456,7 @@ additional_redirect_urls = [
   "https://www.halkakelime.com/**",
   "https://halkakelime.com/**",
   "com.halkakelime.app://**",
+  "https://stickyten.com/**",
 ]
 
 [remotes.canli.auth.email]
@@ -499,7 +500,7 @@ project_id = "vbygbyurswjjmiqrhvmo"
 enable_anonymous_sign_ins = true
 minimum_password_length = 12
 site_url = "http://127.0.0.1:5173"
-additional_redirect_urls = ["http://127.0.0.1:5173/**", "http://localhost:5173/**"]
+additional_redirect_urls = ["http://127.0.0.1:5173/**", "http://localhost:5173/**", "http://localhost:3000/**", "https://stickyten.com/**"]
 
 [remotes.test.auth.email]
 # Oyunlarda parola yok (giriş: e-posta kodu, Google, Apple). Yine de parolalı kayıt yolu başkasının e-postasını
