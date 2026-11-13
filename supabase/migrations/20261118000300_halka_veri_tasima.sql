@@ -15,12 +15,17 @@ with aday as (
          row_number() over (partition by ortak.ad_anahtari(p.name) order by p.created_at, p.id) sira
   from public.hk_profiles p
 ), uygun as (
-  select a.*, a.k is not null and a.sira = 1 and not exists (
+  -- Ad, oyuncunun kendi seçtiğindeki denetimlerden geçmeli (biçim, uzunluk, yasaklı/uygunsuz): geçmeyen adsız taşınır,
+  -- ilk girişte yeniden sorulur (güvenlik incelemesi: taşıma ad denetimini atlamasın).
+  select a.*, a.k is not null and a.sira = 1
+    and ortak.ad_bicimi(btrim(a.name), coalesce((oy.ayarlar -> 'ad' ->> 'en_az')::int, 3), coalesce((oy.ayarlar -> 'ad' ->> 'en_cok')::int, 16))
+    and ortak.ad_uygun(btrim(a.name), coalesce(array(select jsonb_array_elements_text(oy.ayarlar -> 'ad' -> 'yasakli')), '{}'))
+    and not exists (
     select 1 from ortak.oyuncular o where o.oyun_id = 'halka' and o.ad_anahtari = a.k and o.kullanici_id <> a.id) ad_ok
-  from aday a
+  from aday a cross join (select ayarlar from ortak.oyunlar where id = 'halka') oy
 )
 insert into ortak.oyuncular as y (oyun_id, kullanici_id, ad, ad_anahtari, ad_otomatik, olusturma)
-select 'halka', id, case when ad_ok then name end, case when ad_ok then k end, not ad_ok, created_at from uygun
+select 'halka', id, case when ad_ok then btrim(name) end, case when ad_ok then k end, not ad_ok, created_at from uygun
 on conflict (oyun_id, kullanici_id) do update
   set ad = excluded.ad, ad_anahtari = excluded.ad_anahtari, ad_otomatik = false
   where y.ad is null and excluded.ad is not null;
