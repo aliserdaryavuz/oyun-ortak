@@ -177,6 +177,36 @@ Davranış:
 - **`hile` ve `diger`:** yalnız kaydedilir. İnceleme Supabase panelinden `ortak.sikayetler` tablosuyla yapılır.
 - **Arkadaş düellosu (KH-5'in diğer yarısı):** oyuna özgü kaldı; Koz Hesabı kendi şemasında yapar.
 
+### Kendi sunucusu olan oyun (`@oyun/ortak/sunucu-node`, v0.4)
+
+Sticky Ten gibi gerçek zamanlı sunucusu olan oyunlar için (ST-4).
+
+**Jeton doğrulama:**
+```ts
+const dogrula = jetonDogrulayici({ url: SUPABASE_URL, anahtar: SUPABASE_ANON_KEY });
+const oyuncu = await dogrula(jeton);
+```
+- Dönüş `{ id, anonim, eposta, bitis }` ya da `null`.
+- İmza, süre, `aud` ve `role` denetlenir.
+- Socket.IO'da `io.use(...)` içinde `soket.handshake.auth.jeton` ile kullanılır.
+- Bağlantı açıkken yenilenen jetonu istemci olayla yeniden gönderir.
+
+**Yazma:**
+- `servisIstemcisi({ url, servisAnahtari, sema: "sticky" })` servis rolüyle yazar.
+- Servis anahtarı yalnız sunucunun ortam değişkenindedir; istemciye gitmez.
+
+**Sticky Ten (`sticky` şeması):**
+
+| Fonksiyon | Yaptığı |
+| --- | --- |
+| `sticky.oyun_sonu(oyuncular, gun, ciftler)` | Oyun sonucunu tek işlemde yazar: istatistik, rating, rating günlüğü ve ikili sayaç |
+| `sticky.siralama(donem)` | `gun` / `hafta` / `ay` / `tum`; herkese açık, kimlik döndürmez |
+| `sticky.haftalik_odul()` | Pazartesi 00:01 İstanbul cron'u; `sira:hafta-ilk10:<hafta>` ve `sira:hafta-ilk3:<hafta>` |
+| `sticky.takip_et` / `sticky.takibi_birak` / `sticky.takip_ettiklerim` | Takip, en çok 100 |
+
+- Kullanıcı adı `ortak.oyuncular('sticky')`'de tutulur.
+- Deluxe `ortak.haklar` (ürün `sticky_deluxe`, hak `deluxe`).
+
 ### Bildirim (`@oyun/ortak/bildirim`)
 
 - **Kurulum:** `bildirimBaslat({ yerel, depo })`. `yerel`, oyunun yerel bildirim eklentisini (ör. `@capacitor/local-notifications`) saran üç işlev: `izinIste`, `planla`, `iptal`.

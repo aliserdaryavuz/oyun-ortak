@@ -1,6 +1,6 @@
 {
   "name": "@oyun/ortak",
-  "version": "0.3.1",
+  "version": "0.4.0",
   "description": "Serdar'ın mobil oyunlarının ortak kütüphanesi: kayit, hesap, siralama, olcum, odeme, etkinlik, geri-bildirim, bildirim.",
   "type": "module",
   "license": "UNLICENSED",
@@ -43,6 +43,10 @@
     "./bildirim": {
       "types": "./dist/bildirim/index.d.ts",
       "default": "./dist/bildirim/index.js"
+    },
+    "./sunucu-node": {
+      "types": "./dist/sunucu-node/index.d.ts",
+      "default": "./dist/sunucu-node/index.js"
     }
   },
   "scripts": {

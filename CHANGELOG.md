@@ -2,6 +2,14 @@
 
 Her sürümde "Oyunlar ne yapmalı" bölümü vardır. Sürümleme semver; `0.x`'te küçük sürüm kırıcı olabilir.
 
+## v0.4.0 (13 Kasım 2026)
+
+- Yeni giriş: `@oyun/ortak/sunucu-node` (`jetonDogrulayici`, `servisIstemcisi`): kendi Node sunucusu olan oyunlar için Supabase jeton doğrulama ve servis rolüyle yazma (ST-4).
+- Sticky Ten şeması (`20261116000100_sticky.sql`): istatistik, rating, rating günlüğü, ikili sayaç, masa devri; `sticky.oyun_sonu` tek işlem (ST-1); `sticky.siralama` dönemlik sıralama ve `sticky.haftalik_odul` (ST-2); takip (ST-3, oyuna özgü). `ortak.oyunlar('sticky')`, ürün `sticky_deluxe`.
+
+### Oyunlar ne yapmalı
+- Kırıcı değişiklik yok. Kendi sunucusu olan oyun `docs/ENTEGRASYON.md` → "Kendi sunucusu olan oyun".
+
 ## v0.3.1 (13 Kasım 2026)
 
 Şikâyet düzeltmeleri (`20261115000200_sikayet_duzelt.sql`): yalnız şu anki ada yapılan şikâyetler sayılır; şikâyetçi o oyunda en az `ayarlar.sikayet.en_az_gun` (2) gündür oynamış olmalı; misafirken alınan şikâyetler devirde yeni hesaba taşınır. İstemci API'si değişmedi.

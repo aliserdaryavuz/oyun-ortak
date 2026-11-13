@@ -300,6 +300,7 @@ Kalan, bu depoda:
 - ~~Beat Greedy (sezgi) göçleri~~ (13 Kasım, yapıldı): `20261114000100_sezgi.sql`, `sezgi` şeması, içerik arşivden yüklendi. sezgi oturumunun yapacakları `docs/GECIS_SEZGI.md`'de.
 - **Halka kalıcı geçişi:** `hk_` → `ortak` + `halka` (docs/GECIS.md §2–3). Önce Halka oturumu yeni adrese geçmeli (GECIS §0).
 - ~~v0.3 şikâyet~~ (yapıldı): ad şikâyeti eşikte adı sıfırlar; hile/diğer inceleme için. Arkadaş düellosu oyuna özgü kaldı. Davet kodlu özel lig (sezgi) başka oyun isterse ortağa alınır.
+- Sticky Ten (ST-1…ST-4, 13 Kasım): `sticky` şeması, dönemlik sıralama, haftalık ödül, takip, `sunucu-node`. Veri taşıma (Neon → sticky) Sticky Ten oturumunda, önce oyun-test'te kuru çalıştırma.
 - Halka'nın ortak kaydı hazır (`ortak.oyunlar('halka')`, `paket_tam`, silme yolu); veri taşıma Halka'nın yeni sürümüyle.
 - **Sunucu push (FCM/APNs):** Firebase projesi açılınca.
 
