@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gizlilik politikası</title>
+<link rel="stylesheet" href="/stil.css">
+</head>
+<body>
+<main>
+  <nav><a href="/">Ana sayfa</a><a href="/hesap-sil/">Hesap silme</a><a href="#en">English</a></nav>
+  <h1>Gizlilik politikası ve KVKK aydınlatma metni</h1>
+  <p class="soluk">Son güncelleme: {{TARIH}}</p>
+
+  <p>Bu metin, aşağıdaki oyunlarda kişisel verilerinizin nasıl işlendiğini 6698 sayılı Kişisel Verilerin Korunması Kanunu (KVKK) ve Avrupa Birliği Genel Veri Koruma Tüzüğü (GDPR) çerçevesinde açıklar: <strong>Halka Kelime, Sticky Ten, Beat Greedy</strong> ve bu sayfaya bağlantı veren diğer oyunlar. Minik Oyun Kutusu hiçbir kişisel veri toplamaz; onun için ayrı metin geçerlidir.</p>
+
+  <h2>1. Veri sorumlusu</h2>
+  <p>{{SORUMLU}} (bireysel geliştirici). İletişim: <a href="mailto:{{ILETISIM}}">{{ILETISIM}}</a></p>
+
+  <h2>2. Hangi verileri işliyoruz</h2>
+  <table>
+    <tr><th>Veri</th><th>Ne zaman</th><th>Neden</th></tr>
+    <tr><td>Rastgele oyuncu kimliği</td><td>Çevrimiçi bir özelliği (ör. sıralama) ilk kullandığınızda, giriş yapmadan</td><td>Skorunuzu ve ilerlemenizi kaydetmek</td></tr>
+    <tr><td>E-posta adresi; ya da Google veya Apple hesap kimliği ve e-postası</td><td>Hesabınızı bağladığınızda</td><td>Giriş, hesabı başka cihazda açma, giriş kodu göndermek</td></tr>
+    <tr><td>Takma ad, 13 yaş beyanı</td><td>Siz girdiğinizde</td><td>Sıralamada görünmek; yaş sınırına uymak</td></tr>
+    <tr><td>Oyun kaydı, skorlar, lig, ödüller, istatistik</td><td>Oynadıkça</td><td>Oyunu sunmak, sıralama ve etkinlikler, hile denetimi</td></tr>
+    <tr><td>Satın alma hakkı ve mağaza işlem kimliği</td><td>Satın aldığınızda</td><td>Satın aldığınız içeriği açmak, iadeyi işlemek. Kart bilgileriniz bize gelmez; ödemeyi Google Play ya da App Store alır.</td></tr>
+    <tr><td>Kullanım ölçümü: cihazda üretilen rastgele kimlik, oyun içi olaylar (ör. seviye başladı/bitti), uygulama sürümü, platform</td><td>Oynadıkça</td><td>Oyunu iyileştirmek. Reklam kimliği, konum, rehber ya da kişisel bilgi toplanmaz; reklam gösterilmez.</td></tr>
+    <tr><td>Şikâyetler ve kısa anket cevapları</td><td>Gönderdiğinizde</td><td>Uygunsuz adları kaldırmak; test sürümünde oyunu iyileştirmek</td></tr>
+    <tr><td>Bildirim ayarı</td><td>Hatırlatmayı açtığınızda</td><td>Günlük hatırlatma (yalnız cihazınızda kurulur)</td></tr>
+  </table>
+  <p>Hukuki sebep: sözleşmenin kurulması ve ifası (oyunu sunmak, hesabınız, satın aldıklarınız; KVKK m.5/2-c), meşru menfaat (hile önleme, güvenlik, ölçüm; m.5/2-f) ve hukuki yükümlülük (m.5/2-ç).</p>
+
+  <h2>3. Verileri kimler işler ve nerede saklanır</h2>
+  <table>
+    <tr><th>Hizmet sağlayıcı</th><th>Görev</th><th>Yer</th></tr>
+    <tr><td>Supabase</td><td>Hesap ve oyun verisi (veritabanı)</td><td>Almanya (Frankfurt, AB)</td></tr>
+    <tr><td>PostHog</td><td>Kullanım ölçümü</td><td>AB</td></tr>
+    <tr><td>Resend</td><td>Giriş kodu e-postası gönderimi</td><td>AB (İrlanda)</td></tr>
+    <tr><td>Google, Apple</td><td>"Google ile / Apple ile giriş", mağaza ve ödeme</td><td>ABD ve diğer ülkeler</td></tr>
+    <tr><td>RevenueCat</td><td>Satın alma haklarının doğrulanması</td><td>ABD</td></tr>
+    <tr><td>Cloudflare</td><td>Web sitelerinin sunulması</td><td>Küresel</td></tr>
+    <tr><td>Render</td><td>Sticky Ten'in canlı oyun sunucusu</td><td>Sağlayıcının veri merkezi</td></tr>
+  </table>
+  <p>Google, Apple ve RevenueCat'e aktarım, bu hizmetleri seçtiğinizde (ör. Google ile giriş, uygulama içi satın alma) hizmetin sunulması için yapılır. Verileriniz satılmaz ve reklam amacıyla paylaşılmaz.</p>
+
+  <h2>4. Saklama süreleri</h2>
+  <ul>
+    <li>Hesap bağlamadan kullanılan rastgele oyuncu kimliği ve verisi, 90 gün kullanılmazsa silinir.</li>
+    <li>Skorların ayrıntıları (hamle kaydı gibi) 90 gün sonra silinir; skorun kendisi hesabınız durdukça kalır.</li>
+    <li>İstek sınırı sayaçları birkaç saat içinde silinir; ödeme bildirimleri 180 gün tutulur.</li>
+    <li>Hesabınızı silerseniz verileriniz hemen silinir; teknik yedeklerden de kısa süre içinde çıkar. Mağazanın kendi satın alma kayıtları Google ve Apple'da kalır.</li>
+  </ul>
+
+  <h2>5. Haklarınız</h2>
+  <p>KVKK m.11 ve GDPR kapsamında verilerinizin işlenip işlenmediğini öğrenme, bilgi isteme, düzeltme, silme, aktarıldığı kişileri öğrenme, itiraz etme ve zararın giderilmesini isteme haklarınız vardır. Hesap ve veri silme için <a href="/hesap-sil/">hesap silme sayfasını</a> ya da oyunun içindeki "Hesabı sil" seçeneğini kullanabilirsiniz. Diğer başvurular için <a href="mailto:{{ILETISIM}}">{{ILETISIM}}</a> adresine yazın; en geç 30 gün içinde yanıtlanır. Kişisel Verileri Koruma Kurulu'na şikâyet hakkınız saklıdır.</p>
+
+  <h2>6. Çocuklar</h2>
+  <p>Bu oyunlar 13 yaşından küçüklere yönelik değildir; hesap bağlarken 13 yaşından büyük olduğunuzu beyan edersiniz. 13 yaşından küçük bir çocuğun veri gönderdiğini fark ederseniz bize yazın, sileriz.</p>
+
+  <h2>7. Değişiklikler</h2>
+  <p>Bu metin değişirse güncelleme tarihi değişir; önemli değişiklikler oyun içinde duyurulur.</p>
+
+  <hr style="margin:40px 0;border:none;border-top:1px solid var(--cizgi)">
+
+  <section id="en" lang="en">
+    <h1>Privacy policy</h1>
+    <p class="soluk">Last updated: {{TARIH}}</p>
+    <p>This policy explains how personal data is processed in <strong>Halka Kelime, Sticky Ten, Beat Greedy</strong> and other games that link here, under the Turkish Personal Data Protection Law (KVKK) and the EU GDPR. Minik Oyun Kutusu collects no personal data and has its own notice.</p>
+    <h2>Controller</h2>
+    <p>{{SORUMLU}} (individual developer). Contact: <a href="mailto:{{ILETISIM}}">{{ILETISIM}}</a></p>
+    <h2>Data we process</h2>
+    <ul>
+      <li><strong>Random player ID</strong> when you first use an online feature (e.g. leaderboards) without signing in.</li>
+      <li><strong>Email address, or Google/Apple account ID and email</strong> when you link an account, for sign-in and sign-in codes.</li>
+      <li><strong>Nickname and age declaration (13+)</strong> for leaderboards and the age limit.</li>
+      <li><strong>Game progress, scores, leagues, rewards, statistics</strong> to provide the game, rankings, events and anti-cheat.</li>
+      <li><strong>Purchase entitlements and store transaction IDs.</strong> We never receive card details; payment is handled by Google Play or the App Store.</li>
+      <li><strong>Usage analytics:</strong> a random device ID, in-game events, app version and platform. No advertising ID, location or contacts; no ads.</li>
+      <li><strong>Reports and short survey answers</strong> you send.</li>
+    </ul>
+    <p>Legal bases: performance of a contract, legitimate interests (security, anti-cheat, analytics) and legal obligations.</p>
+    <h2>Processors and location</h2>
+    <p>Supabase (database, Frankfurt, EU), PostHog (analytics, EU), Resend (sign-in emails, EU), Google and Apple (sign-in, stores), RevenueCat (purchase validation, US), Cloudflare (websites), Render (Sticky Ten game server). We do not sell your data or share it for advertising.</p>
+    <h2>Retention</h2>
+    <p>Unlinked random player IDs are deleted after 90 days of inactivity; score details after 90 days; payment notifications after 180 days. Deleting your account removes your data immediately and from backups shortly after; store purchase records remain with Google and Apple.</p>
+    <h2>Your rights</h2>
+    <p>You can access, correct, delete and object to processing of your data. Use the <a href="/hesap-sil/#en">account deletion page</a> or the in-game "Delete account" option, or write to <a href="mailto:{{ILETISIM}}">{{ILETISIM}}</a>; we answer within 30 days. You may also complain to your data protection authority.</p>
+    <h2>Children</h2>
+    <p>These games are not directed to children under 13. If you believe a child under 13 sent us data, contact us and we will delete it.</p>
+  </section>
+</main>
+</body>
+</html>

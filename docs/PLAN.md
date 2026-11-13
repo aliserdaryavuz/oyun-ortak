@@ -304,6 +304,8 @@ Kalan, bu depoda:
 - Halka'nın ortak kaydı hazır (`ortak.oyunlar('halka')`, `paket_tam`, silme yolu); veri taşıma Halka'nın yeni sürümüyle.
 - **Sunucu push (FCM/APNs):** Firebase projesi açılınca.
 
+- Ortak web sayfaları (`site/`, 13 Kasım): giriş, gizlilik/KVKK (TR+EN), hesap silme (Google + e-posta kodu; oyun başına ya da tam silme; yerelde uçtan uca denendi). Yayın bekliyor: `{{ILETISIM}}` (gizlilik@<ortak alan adı>), `{{SORUMLU}}` (Serdar'ın adı soyadı), `{{TARIH}}` doldurulacak; Cloudflare Pages'e ortak alan adıyla yayın; Google istemcisinin JavaScript origins listesine sayfanın adresi eklenecek.
+
 Kalan, Serdar'da:
 - Google onay ekranını "In production"a almak (Halka'nın 1 Aralık yayınından önce).
 - RevenueCat hesabı (Play Console aktifleşince); webhook'a `.oyun-ortak/odeme-webhook.env` değeri girilir.

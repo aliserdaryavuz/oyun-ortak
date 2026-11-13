@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hesap silme</title>
+<link rel="stylesheet" href="/stil.css">
+</head>
+<body>
+<main>
+  <nav><a href="/">Ana sayfa</a><a href="/gizlilik/">Gizlilik</a><a href="#en">English</a></nav>
+  <h1>Hesap ve veri silme</h1>
+  <p>Halka Kelime, Sticky Ten, Beat Greedy ve bu sayfaya bağlantı veren diğer oyunlarda tek hesap kullanılır. Burada isterseniz <strong>yalnız bir oyundaki verinizi</strong>, isterseniz <strong>bütün hesabınızı</strong> silebilirsiniz. Aynı işlemi oyunun içindeki "Hesabı sil" seçeneğiyle de yapabilirsiniz.</p>
+
+  <div class="kart">
+    <h2 style="margin-top:0">Ne silinir, ne kalır</h2>
+    <ul>
+      <li><strong>Bu oyundaki verimi sil:</strong> o oyundaki takma adınız, ilerlemeniz, skorlarınız, lig ve istatistikleriniz, ödülleriniz, şikâyet kayıtlarınız ve hesabınızdaki satın alma kaydı silinir. Hesabınız ve öbür oyunlarınız kalır.</li>
+      <li><strong>Hesabımı tamamen sil:</strong> e-posta adresiniz ya da Google/Apple bağlantınız dahil bütün oyunlardaki bütün verileriniz silinir. Bu işlem geri alınamaz.</li>
+      <li>Silme anında yapılır; teknik yedeklerden de kısa süre içinde çıkar. Google Play ve App Store'daki satın alma kayıtları mağazada kalır: aynı mağaza hesabıyla "Satın alımları geri yükle" diyerek satın aldığınızı yeniden açabilirsiniz.</li>
+    </ul>
+    <div class="uyari">Hesap bağlamadan (misafir olarak) oynadıysanız verileriniz yalnız o cihazdaki oyuna bağlıdır: silmek için oyunun içindeki "Hesabı sil" seçeneğini kullanın. Kullanılmayan misafir verileri 90 gün sonra kendiliğinden silinir.</div>
+  </div>
+
+  <div class="kart" id="giris">
+    <h2 style="margin-top:0">1. Giriş yapın</h2>
+    <p>Oyunda hangi yolla girdiyseniz onu kullanın.</p>
+    <div id="googleDugme" class="satir"></div>
+    <p class="soluk">ya da e-posta koduyla:</p>
+    <div class="satir"><input id="eposta" type="email" autocomplete="email" placeholder="E-posta adresiniz" aria-label="E-posta adresi"><button id="kodGonder">Kod gönder</button></div>
+    <div class="satir" id="kodSatiri" hidden><input id="kod" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="6 haneli kod" aria-label="Giriş kodu"><button class="ana" id="kodGir">Giriş</button></div>
+    <div class="durum" id="girisDurum" role="status"></div>
+  </div>
+
+  <div class="kart" id="islem" hidden>
+    <h2 style="margin-top:0">2. Ne silmek istiyorsunuz?</h2>
+    <p>Giriş yapılan hesap: <strong id="kim"></strong> <button id="cikis" style="margin-left:8px">Çıkış</button></p>
+    <h3>Verinizin olduğu oyunlar</h3>
+    <div id="oyunlar"></div>
+    <h3>Bütün hesap</h3>
+    <p>Bütün oyunlardaki bütün verileriniz ve hesabınız silinir. Onaylamak için kutuya <strong>SİL</strong> yazın.</p>
+    <div class="satir"><input id="onay" placeholder="SİL" aria-label="Onay"><button class="tehlike" id="tamamenSil" disabled>Hesabımı tamamen sil</button></div>
+    <div class="durum" id="islemDurum" role="status"></div>
+  </div>
+
+  <section id="en" lang="en" class="kart">
+    <h2 style="margin-top:0">Delete your account (English)</h2>
+    <p>Halka Kelime, Sticky Ten, Beat Greedy and other linked games share one account. On this page you can delete <strong>your data in one game</strong> (nickname, progress, scores, leagues, rewards, purchase record; your account and other games remain) or <strong>your whole account</strong> (all data in all games, including your email or Google/Apple link; cannot be undone; type <strong>DELETE</strong> in the confirmation box). Sign in above with the method you used in the game, then choose. Deletion is immediate; backups are cleared shortly after. Store purchase records stay with Google Play / the App Store and can be restored with "Restore purchases". If you played as a guest without linking an account, use "Delete account" inside the game; unused guest data is deleted automatically after 90 days. Questions: <a href="mailto:{{ILETISIM}}">{{ILETISIM}}</a></p>
+  </section>
+</main>
+
+<script type="module">
+  import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/+esm";
+
+  // Herkese açık anahtarlar (gizli değil). ?ortam=test → oyun-test; yerel yığın yalnız localhost'ta.
+  const ORTAMLAR = {
+    canli: ["https://qzxchutjzhyzzaoxzroh.supabase.co", "sb_publishable_Rv2-z6K0OaQIZFv8H2qSGw_xJGQJxmN"],
+    test: ["https://vbygbyurswjjmiqrhvmo.supabase.co", "sb_publishable_gQyCGzYNBRlYz8bRJPStXA_pAv5cvzO"],
+    yerel: ["http://127.0.0.1:55321", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0"],
+  };
+  const GOOGLE_ISTEMCI = "104092866938-o606eoqcqkjh38mdo00kg8baate5kcoi.apps.googleusercontent.com";
+  const yerelMi = ["localhost", "127.0.0.1"].includes(location.hostname);
+  const istenen = new URLSearchParams(location.search).get("ortam");
+  const ortam = istenen === "test" || (istenen === "yerel" && yerelMi) ? istenen : "canli";
+  const sb = createClient(...ORTAMLAR[ortam], { auth: { persistSession: false } });
+  const ortak = () => sb.schema("ortak");
+
+  const $ = (id) => document.getElementById(id);
+  const durum = (id, metin, hata = false) => { $(id).textContent = metin; $(id).classList.toggle("hata", hata); };
+  const HATA = {
+    owns_leagues: "Kurucusu olduğunuz bir lig var. Önce oyunun içinden ligi devredin ya da silin.",
+    giris_gerekli: "Oturum süresi doldu; yeniden giriş yapın.",
+  };
+  const hataMetni = (e) => {
+    const m = String(e?.message ?? e);
+    return Object.entries(HATA).find(([k]) => m.includes(k))?.[1] ?? "İşlem yapılamadı. Biraz sonra yeniden deneyin.";
+  };
+
+  async function girildi() {
+    const { data } = await sb.auth.getSession();
+    const s = data.session;
+    if (!s || s.user.is_anonymous) return;
+    $("giris").hidden = true;
+    $("islem").hidden = false;
+    $("kim").textContent = s.user.email ?? "(e-postasız hesap)";
+    await oyunlariGoster();
+  }
+
+  async function oyunlariGoster() {
+    const { data, error } = await ortak().rpc("hesap_ozeti");
+    const kap = $("oyunlar");
+    kap.replaceChildren();
+    if (error) return durum("islemDurum", hataMetni(error), true);
+    if (!data.length) {
+      const p = document.createElement("p");
+      p.className = "soluk";
+      p.textContent = "Bu hesapta oyun verisi yok.";
+      return kap.append(p);
+    }
+    for (const o of data) {
+      const satir = document.createElement("div");
+      satir.className = "satir";
+      const ad = document.createElement("span");
+      ad.textContent = o.ad;
+      ad.style.minWidth = "140px";
+      const d = document.createElement("button");
+      d.className = "tehlike";
+      d.textContent = "Bu oyundaki verimi sil";
+      d.addEventListener("click", async () => {
+        if (!confirm(`${o.ad} oyunundaki bütün verileriniz silinecek. Emin misiniz?`)) return;
+        d.disabled = true;
+        const { error } = await ortak().rpc("oyun_verisini_sil", { p_oyun: o.oyun_id });
+        if (error) { d.disabled = false; return durum("islemDurum", hataMetni(error), true); }
+        durum("islemDurum", `${o.ad} verileriniz silindi.`);
+        await oyunlariGoster();
+      });
+      satir.append(ad, d);
+      kap.append(satir);
+    }
+  }
+
+  // E-posta koduyla giriş
+  $("kodGonder").addEventListener("click", async () => {
+    const e = $("eposta").value.trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e)) return durum("girisDurum", "Geçerli bir e-posta adresi yazın.", true);
+    $("kodGonder").disabled = true;
+    // Yalnız var olan hesaba kod gönderilir: silme sayfası yeni hesap açmaz.
+    const { error } = await sb.auth.signInWithOtp({ email: e, options: { shouldCreateUser: false } });
+    $("kodGonder").disabled = false;
+    // Hesabın olup olmadığı sızmasın diye yanıt aynı.
+    durum("girisDurum", "Bu adresle bir hesap varsa 6 haneli kod gönderildi. Gelen kutunuza (ve gereksiz klasörüne) bakın.");
+    $("kodSatiri").hidden = false;
+    $("kod").focus();
+    if (error && !/signups not allowed|not found/i.test(error.message)) console.warn(error.message);
+  });
+  $("kodGir").addEventListener("click", async () => {
+    const { error } = await sb.auth.verifyOtp({ email: $("eposta").value.trim(), token: $("kod").value.trim(), type: "email" });
+    if (error) return durum("girisDurum", "Kod hatalı ya da süresi dolmuş.", true);
+    await girildi();
+  });
+
+  // Google ile giriş (Google'ın kendi düğmesi; oyuncu bu sayfanın adresini görür)
+  const ozet = async (s) => [...new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(s)))]
+    .map((x) => x.toString(16).padStart(2, "0")).join("");
+  const nonce = [...crypto.getRandomValues(new Uint8Array(32))].map((x) => x.toString(16).padStart(2, "0")).join("");
+  const gsi = document.createElement("script");
+  gsi.src = "https://accounts.google.com/gsi/client";
+  gsi.async = true;
+  gsi.onload = async () => {
+    google.accounts.id.initialize({
+      client_id: GOOGLE_ISTEMCI,
+      nonce: await ozet(nonce),
+      use_fedcm_for_prompt: true,
+      callback: async (y) => {
+        const { error } = await sb.auth.signInWithIdToken({ provider: "google", token: y.credential, nonce });
+        if (error) return durum("girisDurum", "Google ile giriş yapılamadı.", true);
+        await girildi();
+      },
+    });
+    google.accounts.id.renderButton($("googleDugme"), { theme: "outline", size: "large", shape: "pill", text: "signin_with", locale: "tr" });
+  };
+  document.head.append(gsi);
+
+  $("cikis").addEventListener("click", async () => { await sb.auth.signOut({ scope: "local" }); location.reload(); });
+  // Türkçe klavyede "SİL", İngilizce klavyede "SIL" ya da "DELETE" yazılabilir.
+  $("onay").addEventListener("input", () => {
+    const v = $("onay").value.trim();
+    $("tamamenSil").disabled = !["SİL", "SIL", "DELETE"].includes(v.toLocaleUpperCase("tr")) && !["SIL", "DELETE"].includes(v.toUpperCase());
+  });
+  $("tamamenSil").addEventListener("click", async () => {
+    $("tamamenSil").disabled = true;
+    const { error } = await ortak().rpc("hesabi_sil");
+    if (error) { $("tamamenSil").disabled = false; return durum("islemDurum", hataMetni(error), true); }
+    await sb.auth.signOut({ scope: "local" });
+    $("islem").replaceChildren(Object.assign(document.createElement("p"), { textContent: "Hesabınız ve bütün verileriniz silindi." }));
+  });
+</script>
+</body>
+</html>
