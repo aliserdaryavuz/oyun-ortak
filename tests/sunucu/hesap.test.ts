@@ -69,7 +69,7 @@ test("takma ad: biçim, uygunsuz söz, Türkçe katlamalı benzersizlik, 30 gün
     await c.anonimGir();
     assert.equal((await c.adDegistir(iyi + Math.floor(Math.random() * 10))).durum, "ok", iyi);
   }
-  for (const kotu of ["S1kt1r42", "orospucocugu", "Admin", "sik", "BahisKral", "denemeci"])
+  for (const kotu of ["S1kt1r42", "orospucocugu", "Admin", "sik", "BahisKral", "denemeci", "5iktir", "0rospu", "Go7", "Naz1", "Sik42", "Pic99"])
     assert.equal((await b.adDegistir(kotu)).durum, "uygunsuz", kotu);
   for (const yanlis of ["ab", "x".repeat(17), "iki  boşluk", "123", "a<b>c", "x\ty"])
     assert.equal((await b.adDegistir(yanlis)).durum, "bicim", yanlis);
