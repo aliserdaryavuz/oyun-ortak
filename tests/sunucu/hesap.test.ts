@@ -63,6 +63,12 @@ test("takma ad: biçim, uygunsuz söz, Türkçe katlamalı benzersizlik, 30 gün
   await b.anonimGir();
   assert.equal((await b.adDegistir(ad.replace("Işık", "isik"))).durum, "alinmis");
   assert.equal((await b.adDegistir(ad.replace("Işık", "I.ŞIK"))).durum, "alinmis");
+  // Sondaki rakamlar harfe çevrilmez (önce "Işık156759" → "isikists" → "sikis" yanlış pozitifti)
+  for (const iyi of ["Işık156759", "Bekçi4821", "Sis5"]) {
+    const c = yeniHesap();
+    await c.anonimGir();
+    assert.equal((await c.adDegistir(iyi + Math.floor(Math.random() * 10))).durum, "ok", iyi);
+  }
   for (const kotu of ["S1kt1r42", "orospucocugu", "Admin", "sik", "BahisKral", "denemeci"])
     assert.equal((await b.adDegistir(kotu)).durum, "uygunsuz", kotu);
   for (const yanlis of ["ab", "x".repeat(17), "iki  boşluk", "123", "a<b>c", "x\ty"])

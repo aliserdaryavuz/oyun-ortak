@@ -89,7 +89,8 @@ test("devir: var olan hesaba denemeler taşınır; çakışanda erken başlangı
   const anonId = await h.anonimGir();
   await sql`insert into ortak.denemeler (oyun_id, kullanici_id, anahtar, durum, olusturma) values
     ('deneme', ${anonId}, 'gunluk:2026-11-13', '{"ipuclari": ["a", "b"], "baska": 2}', now() - interval '1 hour'),
-    ('deneme', ${anonId}, 'gunluk:2026-11-12', '{"ipuclari": ["c"]}', now() - interval '1 day')`;
+    ('deneme', ${anonId}, 'gunluk:2026-11-12', '{"ipuclari": ["c"], "ilerleme": 7}', now() - interval '1 day')`;
+  await sql`update ortak.denemeler set sira = 4, bitti = true where kullanici_id = ${anonId} and anahtar = 'gunluk:2026-11-12'`;
   const r = await h.disGiris(() => c.auth.signInWithPassword({ email: k.k.eposta, password: k.k.parola }));
   assert.equal(r.skorlarTasindi, false);
   const d = await sql`select anahtar, durum, olusturma < now() - interval '50 minutes' as erken
@@ -99,6 +100,9 @@ test("devir: var olan hesaba denemeler taşınır; çakışanda erken başlangı
   assert.deepEqual([...bugun_.durum.ipuclari].sort(), ["a", "b"]); // tekrarsız birleşim
   assert.equal(bugun_.durum.baska, 1); // oyuna özgü öbür alanlar hedefte kalır
   assert.equal(bugun_.erken, true); // misafirin daha erken başlangıcı
+  // Çakışmayan deneme yalnız ceza bilgisiyle taşınır: oyun durumu (ilerleme) ve sıra taşınmaz, bitti korunur
+  const tasinan = (await sql`select durum, sira, bitti from ortak.denemeler where kullanici_id = ${k.id} and anahtar = 'gunluk:2026-11-12'`)[0]!;
+  assert.deepEqual({ ...tasinan }, { durum: { ipuclari: ["c"] }, sira: 0, bitti: true });
   assert.equal((await sql`select count(*)::int as n from ortak.denemeler where kullanici_id = ${anonId}`)[0]!.n, 0);
 });
 
