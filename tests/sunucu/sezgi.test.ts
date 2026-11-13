@@ -34,6 +34,44 @@ test("zamanlanmış işlerin çağırdığı fonksiyonlar sezgi şemasında çal
   for (const j of isler) assert.doesNotMatch(j.command, /public\./, j.jobname);
 });
 
+test("BG-1: kullanıcı adı ortak kayda yansır; çakışan ad boş kalır, profil yine yazılır", async () => {
+  const a = await oyuncu();
+  const ad = `bg_ad${Math.floor(Math.random() * 1e8)}`;
+  assert.equal((await a.sezgi().from("profiles").insert({ id: a.id, username: ad })).error, null);
+  const oku = async (id: string) => (await sql`select ad from ortak.oyuncular where oyun_id = 'sezgi' and kullanici_id = ${id}`)[0]?.ad;
+  assert.equal(await oku(a.id), ad);
+  const yeni = `${ad}x`;
+  await a.sezgi().from("profiles").update({ username: yeni }).eq("id", a.id);
+  assert.equal(await oku(a.id), yeni);
+  // "bgad…x" ile "bg_ad…x" ortakta aynı anahtar: ikincinin ortak adı boş kalır
+  const b = await oyuncu();
+  assert.equal((await b.sezgi().from("profiles").insert({ id: b.id, username: yeni.replace("_", "") })).error, null);
+  assert.equal(await oku(b.id), null);
+});
+
+test("BG-1: gün toplamı birikir, hafta 7 gün toplanır; istemci yazamaz; kapanışta kademe atlayana sunucu ödülü", async () => {
+  const c = await oyuncu();
+  assert.match((await c.c.schema("ortak").rpc("gun_toplami_yaz", { p_oyun: "sezgi", p_kullanici: c.id, p_gun: "2026-11-16", p_toplam: 1 })).error?.message ?? "", /permission denied/);
+
+  const [{ hafta }] = await sql`select (ortak.iso_hafta(ortak.bugun()) - 7)::text as hafta`;
+  const gun = (n: number) => { const d = new Date(`${hafta}T00:00:00Z`); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); };
+  const kisiler: string[] = [];
+  for (let i = 0; i < 10; i++) {
+    const [{ id }] = await sql`insert into auth.users (id, aud, role, is_anonymous) values (gen_random_uuid(), 'authenticated', 'authenticated', false) returning id`;
+    kisiler.push(id);
+    // Gün içinde artan toplam: son değer geçerli
+    await sql`select ortak.gun_toplami_yaz('sezgi', ${id}, ${gun(0)}, 100)`;
+    await sql`select ortak.gun_toplami_yaz('sezgi', ${id}, ${gun(0)}, ${1000 + i * 100})`;
+    for (let g = 1; g < 7; g++) await sql`select ortak.gun_toplami_yaz('sezgi', ${id}, ${gun(g)}, 10)`;
+  }
+  const [{ puan }] = await sql`select puan::int from ortak.lig_uyeleri where oyun_id = 'sezgi' and kullanici_id = ${kisiler[0]}`;
+  assert.equal(puan, 1000 + 6 * 10); // 7 günün hepsi
+  await sql`select ortak.lig_kapat()`;
+  const od = await sql`select kullanici_id, odul from ortak.oduller where oyun_id = 'sezgi' and kaynak = ${"lig:" + hafta}`;
+  assert.deepEqual(new Set(od.map((r) => r.kullanici_id)), new Set(kisiler.slice(8)));
+  assert.ok(od.every((r) => r.odul === `sira:lig-1-${hafta}`));
+});
+
 test("ortak silme yolu: bu oyundan sil sezgi profilini siler; lig kurucusu önce devretmeli", async () => {
   const a = await oyuncu();
   await a.h.ben(); // ortak.oyuncular('sezgi') satırı
