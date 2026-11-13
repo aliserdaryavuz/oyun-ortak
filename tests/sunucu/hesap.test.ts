@@ -64,10 +64,13 @@ test("takma ad: biçim, uygunsuz söz, Türkçe katlamalı benzersizlik, 30 gün
   assert.equal((await b.adDegistir(ad.replace("Işık", "isik"))).durum, "alinmis");
   assert.equal((await b.adDegistir(ad.replace("Işık", "I.ŞIK"))).durum, "alinmis");
   // Sondaki rakamlar harfe çevrilmez (önce "Işık156759" → "isikists" → "sikis" yanlış pozitifti)
+  // Sona eklenen rastgele harf benzersizliği sağlar (rakam eklemek kuralı değiştirirdi)
+  const harf = () => "abcdefghjkmnprstuvyz"[Math.floor(Math.random() * 20)]!;
   for (const iyi of ["Işık156759", "Bekçi4821", "Sis5"]) {
     const c = yeniHesap();
     await c.anonimGir();
-    assert.equal((await c.adDegistir(iyi + Math.floor(Math.random() * 10))).durum, "ok", iyi);
+    const ad = `${harf()}${harf()}${harf()}${iyi}`;
+    assert.equal((await c.adDegistir(ad)).durum, "ok", ad);
   }
   for (const kotu of ["S1kt1r42", "orospucocugu", "Admin", "sik", "BahisKral", "denemeci", "5iktir", "0rospu", "Go7", "Naz1", "Sik42", "Pic99"])
     assert.equal((await b.adDegistir(kotu)).durum, "uygunsuz", kotu);

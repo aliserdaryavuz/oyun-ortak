@@ -34,19 +34,45 @@ test("zamanlanmış işlerin çağırdığı fonksiyonlar sezgi şemasında çal
   for (const j of isler) assert.doesNotMatch(j.command, /public\./, j.jobname);
 });
 
-test("BG-1: kullanıcı adı ortak kayda yansır; çakışan ad boş kalır, profil yine yazılır", async () => {
+test("BG-1: kullanıcı adı ortak kurallarla denetlenip ortak kayda yansır (süzgeç, 30 gün, benzersizlik)", async () => {
   const a = await oyuncu();
   const ad = `bg_ad${Math.floor(Math.random() * 1e8)}`;
   assert.equal((await a.sezgi().from("profiles").insert({ id: a.id, username: ad })).error, null);
   const oku = async (id: string) => (await sql`select ad from ortak.oyuncular where oyun_id = 'sezgi' and kullanici_id = ${id}`)[0]?.ad;
   assert.equal(await oku(a.id), ad);
+  // 30 gün dolmadan değiştirilemez
   const yeni = `${ad}x`;
-  await a.sezgi().from("profiles").update({ username: yeni }).eq("id", a.id);
+  assert.match((await a.sezgi().from("profiles").update({ username: yeni }).eq("id", a.id)).error?.message ?? "", /ad_bekle/);
+  await sql`update ortak.oyuncular set ad_degisti = now() - interval '31 days' where oyun_id = 'sezgi' and kullanici_id = ${a.id}`;
+  assert.equal((await a.sezgi().from("profiles").update({ username: yeni }).eq("id", a.id)).error, null);
   assert.equal(await oku(a.id), yeni);
-  // "bgad…x" ile "bg_ad…x" ortakta aynı anahtar: ikincinin ortak adı boş kalır
+  // "bgad…x" ile "bg_ad…x" ortakta aynı anahtar: ikinci kayıt reddedilir
   const b = await oyuncu();
-  assert.equal((await b.sezgi().from("profiles").insert({ id: b.id, username: yeni.replace("_", "") })).error, null);
-  assert.equal(await oku(b.id), null);
+  assert.match((await b.sezgi().from("profiles").insert({ id: b.id, username: yeni.replace("_", "") })).error?.message ?? "", /ad_alinmis/);
+  // sezgi'nin kendi süzgecinden geçen ama ortak süzgece takılan ad
+  assert.match((await b.sezgi().from("profiles").insert({ id: b.id, username: "Sik42" })).error?.message ?? "", /ad_uygunsuz/);
+});
+
+test("BG-1: şikâyetle sıfırlanan ad Beat Greedy profilinde de değişir ve yeniden alınamaz", async () => {
+  const hedef = await oyuncu();
+  const ad = `kotu_bg${Math.floor(Math.random() * 1e6)}`;
+  await hedef.sezgi().from("profiles").insert({ id: hedef.id, username: ad });
+  for (let i = 0; i < 3; i++) {
+    const [{ id }] = await sql`insert into auth.users (id, aud, role, is_anonymous, email) values (gen_random_uuid(), 'authenticated', 'authenticated', false, ${`s${crypto.randomUUID()}@test.local`}) returning id`;
+    await sql`insert into ortak.oyuncular (oyun_id, kullanici_id, olusturma) values ('sezgi', ${id}, now() - interval '3 days')`;
+    // Kimlik ve çağrı aynı işlemde (havuzdaki başka bağlantıya düşmesin)
+    await sql.begin(async (t) => {
+      await t`select set_config('request.jwt.claims', ${JSON.stringify({ sub: id, role: "authenticated", is_anonymous: false })}, true)`;
+      await t`select ortak.sikayet_et('sezgi', ${ad}, 'ad')`;
+    });
+  }
+  const [p] = await sql`select username::text as u from sezgi.profiles where id = ${hedef.id}`;
+  assert.match(p!.u, /^oyuncu_[0-9a-f]{10}$/);
+  assert.equal((await sql`select ad from ortak.oyuncular where oyun_id = 'sezgi' and kullanici_id = ${hedef.id}`)[0]!.ad, null);
+  // aynı ad ne Beat Greedy'den ne ortak yoldan yeniden alınabilir; başka bir ad hemen alınabilir
+  assert.match((await hedef.sezgi().from("profiles").update({ username: ad }).eq("id", hedef.id)).error?.message ?? "", /ad_uygunsuz/);
+  assert.deepEqual(await hedef.h.adDegistir(ad), { durum: "uygunsuz" });
+  assert.equal((await hedef.sezgi().from("profiles").update({ username: `temiz_${Math.floor(Math.random() * 1e6)}` }).eq("id", hedef.id)).error, null);
 });
 
 test("BG-1: gün toplamı birikir, hafta 7 gün toplanır; istemci yazamaz; kapanışta kademe atlayana sunucu ödülü", async () => {
@@ -67,7 +93,7 @@ test("BG-1: gün toplamı birikir, hafta 7 gün toplanır; istemci yazamaz; kapa
   const [{ puan }] = await sql`select puan::int from ortak.lig_uyeleri where oyun_id = 'sezgi' and kullanici_id = ${kisiler[0]}`;
   assert.equal(puan, 1000 + 6 * 10); // 7 günün hepsi
   await sql`select ortak.lig_kapat()`;
-  const od = await sql`select kullanici_id, odul from ortak.oduller where oyun_id = 'sezgi' and kaynak = ${"lig:" + hafta}`;
+  const od = await sql`select kullanici_id, odul from ortak.oduller where oyun_id = 'sezgi' and kaynak = ${"lig:" + hafta} and kullanici_id in ${sql(kisiler)}`;
   assert.deepEqual(new Set(od.map((r) => r.kullanici_id)), new Set(kisiler.slice(8)));
   assert.ok(od.every((r) => r.odul === `sira:lig-1-${hafta}`));
 });
