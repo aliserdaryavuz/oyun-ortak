@@ -206,3 +206,65 @@ test("silme: bu oyundan sil sticky verisini, takipleri ve ikili sayaçları temi
     + (select count(*) from sticky.follows where user_id = ${id} or follows_id = ${id})::int as n`;
   assert.equal(r!.n, 0);
 });
+
+test("ST-6: rating_uygula aynı anda iki oyunda üst üste yazmaz; günlük yazılamazsa rating değişmez; yalnız servis", async () => {
+  const y = servisIstemcisi({ url: URL, servisAnahtari: SERVIS, sema: "sticky" });
+  const a = await oyuncu();
+  // aynı oyuncuya aynı anda +10 ve +20 (satır henüz yok: ilk yazım da yarışır)
+  const [r1, r2] = await Promise.all([
+    y.rpc("rating_uygula", { p_kullanici: a.id, p_delta: 10, p_gun: "2026-11-14" }),
+    y.rpc("rating_uygula", { p_kullanici: a.id, p_delta: 20, p_gun: "2026-11-14" }),
+  ]);
+  assert.equal(r1.error, null);
+  assert.equal(r2.error, null);
+  const [s] = await sql`select rating, rated_games, rated_today, rated_day from sticky.stats where user_id = ${a.id}`;
+  assert.deepEqual({ ...s }, { rating: 1230, rated_games: 2, rated_today: 2, rated_day: "2026-11-14" });
+  assert.equal((await sql`select count(*)::int as n from sticky.rating_log where user_id = ${a.id}`)[0]!.n, 2);
+  // gün değişince bugünkü sayı 1'den başlar; dönüş yeni değerleri verir
+  const r3 = await y.rpc("rating_uygula", { p_kullanici: a.id, p_delta: -5, p_gun: "2026-11-15" });
+  assert.deepEqual(r3.data, { rating: 1225, rated_games: 3, rated_today: 1 });
+  // günlük yazılamazsa rating de yazılmaz (aynı işlem): rating_log'a geçici olarak hata veren tetikleyici
+  await assert.rejects(
+    sql.begin(async (t) => {
+      await t`create function sticky.test_hata() returns trigger language plpgsql as $$ begin raise exception 'gunluk_hata'; end $$`;
+      await t`create trigger test_hata before insert on sticky.rating_log for each row execute function sticky.test_hata()`;
+      await t.savepoint(async (sp) => {
+        await assert.rejects(sp`select sticky.rating_uygula(${a.id}, 50, '2026-11-15')`, /gunluk_hata/);
+      }).catch(() => {});
+      const [x] = await t`select rating from sticky.stats where user_id = ${a.id}`;
+      assert.equal(x!.rating, 1225);
+      throw new Error("geri_al"); // tetikleyiciyi kaldırmak için işlemi geri al
+    }),
+    /geri_al/,
+  );
+  assert.equal((await sql`select rating from sticky.stats where user_id = ${a.id}`)[0]!.rating, 1225);
+  // istemci çağıramaz
+  const c = istemci();
+  await hesapBaslat({ supabase: c, oyunId: "sticky", depo: bellekDepo() }).anonimGir();
+  assert.match((await c.schema("sticky").rpc("rating_uygula", { p_kullanici: a.id, p_delta: 100, p_gun: "2026-11-15" })).error?.message ?? "", /permission denied/);
+});
+
+test("ST-7: siralama servis rolüyle verilen oyuncunun sırasını ilk 500 dışında da döndürür; başkası için yok sayılır", async () => {
+  const y = servisIstemcisi({ url: URL, servisAnahtari: SERVIS, sema: "sticky" });
+  const [{ m }] = await sql`select coalesce(max(rating), 1200)::int as m from sticky.stats`;
+  const taban = (m as number) + 10_000; // bu testin 600 oyuncusu tablonun en üstünde, sıraları 1..600
+  const ids: string[] = [];
+  for (let i = 0; i < 600; i++) ids.push((await oyuncu()).id);
+  await sql`insert into sticky.stats (user_id, rating, rated_games)
+            select u, ${taban} - i, 20 from unnest(${ids}::uuid[]) with ordinality as x(u, i)`;
+  const hedef = ids[549]!; // 550.
+  try {
+  const { data, error } = await y.rpc("siralama", { p_donem: "tum", p_ilk: 500, p_kullanici: hedef });
+  assert.equal(error, null);
+  assert.equal(data.satirlar.length, 500);
+  assert.deepEqual(data.ben, { sira: 550, deger: taban - 550, oyun: 20 });
+  // anonim çağıran p_kullanici veremez: ben boş kalır
+  const anon = istemci();
+  const r = await anon.schema("sticky").rpc("siralama", { p_donem: "tum", p_ilk: 1, p_kullanici: hedef });
+  assert.equal(r.error, null);
+  assert.equal(r.data.ben, null);
+  } finally {
+    // 600 yüksek puanlı oyuncu kalırsa öbür sıralama testlerini ilk 500'ün dışına iter
+    await sql`delete from auth.users where id = any(${ids}::uuid[])`;
+  }
+});
