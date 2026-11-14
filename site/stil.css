@@ -17,10 +17,17 @@ a { color: var(--vurgu); }
 [hidden] { display: none !important; }
 
 /* ---------- kabuk ---------- */
-body.belge { height: 100dvh; overflow: hidden; display: grid; grid-template-columns: auto 1fr;
-  grid-template-rows: var(--ust) minmax(0, 1fr); grid-template-areas: "logo dil" "ana ana"; }
+body.belge { height: 100dvh; overflow: hidden; display: grid; grid-template-columns: auto auto 1fr;
+  grid-template-rows: var(--ust) minmax(0, 1fr); grid-template-areas: "geri logo dil" "ana ana ana"; }
 body.belge::before { content: ""; grid-area: 1 / 1 / 2 / -1; background: var(--tezgah); }
-.logo { grid-area: logo; align-self: center; margin-left: max(var(--kenar), env(safe-area-inset-left)); }
+/* Geri: Türkçe bölümde ana sayfaya, İngilizce bölümde /en/'e (yalnız biri görünür) */
+.geri { grid-area: geri; align-self: center; margin-left: max(var(--kenar), env(safe-area-inset-left)); display: flex; align-items: center; gap: 6px;
+  min-height: 44px; padding: 0 14px 0 10px; border: 1.5px solid var(--kabarik); border-radius: 10px; color: var(--kagit); text-decoration: none; font-weight: 600; font-size: 15px; }
+.geri:hover { border-color: var(--kehribar); }
+.geri span[aria-hidden] { font-size: 22px; line-height: 1; }
+.geri.g-en, body:has(.dil.en :target, .dil.en:target) .geri.g-tr { display: none; }
+body:has(.dil.en :target, .dil.en:target) .geri.g-en { display: flex; }
+.logo { grid-area: logo; align-self: center; margin-left: 14px; }
 .logo img { display: block; height: 36px; width: auto; }
 .diller { grid-area: dil; align-self: center; justify-self: end; display: flex; gap: 4px; margin-right: max(var(--kenar), env(safe-area-inset-right)); }
 .diller a, .bolumler a { display: flex; align-items: center; min-height: 44px; padding: 0 14px; border-radius: 10px; text-decoration: none; font-weight: 600; }
@@ -73,8 +80,10 @@ input { font: inherit; padding: 10px 12px; border-radius: 9px; border: 1px solid
 /* ---------- telefon: bölümler üstte şerit ---------- */
 @media (max-width: 699px) {
   :root { --ust: 56px; }
-  .logo img { height: 30px; }
   .diller a { padding: 0 10px; font-size: 14px; }
+  .geri { padding: 0 10px 0 8px; font-size: 14px; }
+  .logo { margin-left: 10px; }
+  .logo img { height: 24px; }
   .dil { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr); gap: 10px; }
   .bolumler { flex-direction: row; overflow-x: auto; gap: 4px; scrollbar-width: none; }
   .bolumler a { flex: none; white-space: nowrap; font-size: 14px; padding: 0 12px; border: 1.5px solid var(--cizgi); }
