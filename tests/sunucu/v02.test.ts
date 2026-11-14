@@ -151,3 +151,48 @@ test("devir: hak ve ödül var olan hesaba da taşınır; bu oyundan sil ikisini
   assert.deepEqual(await haklarim(c), []);
   assert.deepEqual(await rpc(c, "odullerim", { p_oyun: "deneme" }), []);
 });
+
+test("ST-8: bildirim anahtarları kalıcı; misafir yazamaz; anahtar cihaza ait; 10 cihaz sınırı; silme yolları", async () => {
+  const y = yonetici();
+  const oku = async (u: string) =>
+    (await y.schema("ortak").from("bildirim_anahtarlari").select("anahtar, platform, dil").eq("oyun_id", "deneme").eq("kullanici_id", u)).data ?? [];
+  const anahtar = (n: number) => `fcm-${crypto.randomUUID()}-${n}`;
+  // misafir yazamaz
+  const m = istemci();
+  await hesapBaslat({ supabase: m, oyunId: "deneme", depo: bellekDepo() }).anonimGir();
+  assert.match((await m.schema("ortak").rpc("bildirim_anahtari_yaz", { p_oyun: "deneme", p_platform: "android", p_anahtar: anahtar(0) })).error?.message ?? "", /kalici_hesap_gerekli/);
+  // kalıcı hesap yazar, servis rolü okur; istemci tabloyu doğrudan okuyamaz
+  const a = istemci();
+  const ha = hesapBaslat({ supabase: a, oyunId: "deneme", depo: bellekDepo() });
+  const aId = await kaliciGir(ha);
+  const k1 = anahtar(1);
+  assert.equal((await a.schema("ortak").rpc("bildirim_anahtari_yaz", { p_oyun: "deneme", p_platform: "android", p_anahtar: k1, p_dil: "en" })).error, null);
+  assert.deepEqual(await oku(aId), [{ anahtar: k1, platform: "android", dil: "en" }]);
+  assert.ok((await a.schema("ortak").from("bildirim_anahtarlari").select("anahtar").limit(1)).error);
+  // aynı cihazda başka hesap girince anahtar o hesaba geçer
+  const b = istemci();
+  const hb = hesapBaslat({ supabase: b, oyunId: "deneme", depo: bellekDepo() });
+  const bId = await kaliciGir(hb);
+  await b.schema("ortak").rpc("bildirim_anahtari_yaz", { p_oyun: "deneme", p_platform: "android", p_anahtar: k1 });
+  assert.equal((await oku(aId)).length, 0);
+  assert.equal((await oku(bId)).length, 1);
+  // başkasının anahtarını silemez; kendi anahtarını siler (çıkış)
+  await a.schema("ortak").rpc("bildirim_anahtari_sil", { p_oyun: "deneme", p_anahtar: k1 });
+  assert.equal((await oku(bId)).length, 1);
+  await b.schema("ortak").rpc("bildirim_anahtari_sil", { p_oyun: "deneme", p_anahtar: k1 });
+  assert.equal((await oku(bId)).length, 0);
+  // en çok 10 cihaz: en eskisi düşer
+  for (let i = 0; i < 12; i++) await a.schema("ortak").rpc("bildirim_anahtari_yaz", { p_oyun: "deneme", p_platform: "ios", p_anahtar: anahtar(100 + i) });
+  assert.equal((await oku(aId)).length, 10);
+  // servis rolü geçersiz anahtarı siler
+  const ilk = (await oku(aId))[0]!.anahtar;
+  await y.schema("ortak").from("bildirim_anahtarlari").delete().eq("oyun_id", "deneme").eq("anahtar", ilk);
+  assert.equal((await oku(aId)).length, 9);
+  // "bu oyundan sil" ve hesap silme temizler
+  await ha.buOyundanSil();
+  assert.equal((await oku(aId)).length, 0);
+  await b.schema("ortak").rpc("bildirim_anahtari_yaz", { p_oyun: "deneme", p_platform: "android", p_anahtar: anahtar(200) });
+  await sql`delete from auth.users where id = ${bId}`;
+  assert.equal((await oku(bId)).length, 0);
+});
+
