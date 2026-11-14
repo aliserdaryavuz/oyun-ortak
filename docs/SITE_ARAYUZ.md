@@ -71,6 +71,7 @@ Satır uzunluğu en çok 60 karakter.
 
 - Kök `100dvh`, gövde `overflow: hidden`. Bölümler sekmedir: Ana sayfa, Oyunlar, Hakkında, İletişim. Sekmeler geniş ekranda üst çubukta, 700 px altında altta.
 - Metin dili: ASYWorks bir stüdyo değil, oyunların yayımlandığı ad. "Stüdyo" ve "tek başıma" denmez; marka üçüncü şahısla anılır ("ASYWorks … yapar"). "Kısa oyun" gibi küçümseyen ifadeler kullanılmaz. Metinler Fable 5.2 ile sadeleştirildi (14 Kasım 2026).
+- Önbellek: Cloudflare CSS ve JS dosyalarını tarayıcıda 4 saat tutar. `ana.css`, `stil.css` ya da `sekme.js` değişince sayfalardaki `?v=` değeri dosyanın yeni özetiyle değiştirilir: `git hash-object site/ana.css | cut -c1-8`.
 - Sekme ve oyun seçimi yalnız CSS ile (`:target` + `:has`); JavaScript gerekmez, geri tuşu ve doğrudan bağlantı (`/#halka-kelime`) çalışır.
 - Oyunlar tek tek, kendi renginde bir pencerede gösterilir. Pencere geniş ekranda iki sütun (metin, telefon), dikeyde bilgi solda telefon sağda; kısa dikey pencerede (560 px altı) başlık ve açıklama aynı satırda.
 - Telefon çerçevesi ve kehribar raf SVG'dir: kalan yüksekliğe sığar, oranı bozulmaz. Yazı basamakları bölüm kutusunun boyuna göre ölçeklenir (`cqw`/`cqh`).
