@@ -1,23 +1,64 @@
+/* Gizlilik ve hesap silme: ana sayfayla aynı tek ekran kabuğu (docs/SITE_ARAYUZ.md).
+   Bölümler sekme (:target ile, JavaScript gerekmez); her dilin ilk bölümü varsayılan.
+   Yasal metin uzun olduğundan panel içi kaydırma bu sayfalarda tek istisnadır; sayfa kaydırılmaz. */
 @import url("/yazi/yazi.css");
 :root {
+  --tezgah: #17283b; --kabarik: #1f3650; --kagit: #f5f1e8; --kehribar: #f2b544; --soluk-koyu: #a9b6c4;
   --zemin: #f5f1e8; --kart: #ffffff; --yazi: #17283b; --soluk: #55606d; --vurgu: #1f5f9e; --cizgi: #e4ddcd; --hata: #a8322d; --uyari: #fff6e0;
+  --ust: 64px; --kenar: clamp(16px, 3vw, 40px);
 }
 @media (prefers-color-scheme: dark) {
   :root { --zemin: #0f1d2c; --kart: #17283b; --yazi: #f5f1e8; --soluk: #a9b6c4; --vurgu: #f2b544; --cizgi: #24384f; --hata: #f08a84; --uyari: #3a321c; }
 }
 * { box-sizing: border-box; }
 body { margin: 0; background: var(--zemin); color: var(--yazi); font: 16px/1.6 "Archivo", sans-serif; }
-main { max-width: 760px; margin: 0 auto; padding: 28px 16px 64px; }
-h1 { font-size: 26px; line-height: 1.25; margin: 0 0 6px; }
-h2 { font-size: 19px; margin: 32px 0 8px; }
+a { color: var(--vurgu); }
+:focus-visible { outline: 3px solid var(--kehribar); outline-offset: 2px; border-radius: 4px; }
+[hidden] { display: none !important; }
+
+/* ---------- kabuk ---------- */
+body.belge { height: 100dvh; overflow: hidden; display: grid; grid-template-columns: auto 1fr;
+  grid-template-rows: var(--ust) minmax(0, 1fr); grid-template-areas: "logo dil" "ana ana"; }
+body.belge::before { content: ""; grid-area: 1 / 1 / 2 / -1; background: var(--tezgah); }
+.logo { grid-area: logo; align-self: center; margin-left: max(var(--kenar), env(safe-area-inset-left)); }
+.logo img { display: block; height: 36px; width: auto; }
+.diller { grid-area: dil; align-self: center; justify-self: end; display: flex; gap: 4px; margin-right: max(var(--kenar), env(safe-area-inset-right)); }
+.diller a, .bolumler a { display: flex; align-items: center; min-height: 44px; padding: 0 14px; border-radius: 10px; text-decoration: none; font-weight: 600; }
+.diller a { color: var(--soluk-koyu); font-size: 15px; }
+.diller a:hover { color: var(--kagit); }
+.diller a[aria-current] { color: var(--kagit); background: var(--kabarik); box-shadow: inset 0 -3px 0 var(--kehribar); }
+
+main { grid-area: ana; min-height: 0; overflow: clip; }
+.dil { display: none; height: 100%; grid-template-columns: 230px minmax(0, 780px); grid-template-rows: minmax(0, 1fr); justify-content: center;
+  gap: clamp(16px, 3vw, 40px); padding: clamp(14px, 3vh, 36px) max(var(--kenar), env(safe-area-inset-right)) clamp(14px, 3vh, 36px) max(var(--kenar), env(safe-area-inset-left)); }
+.dil.tr, main:has(.dil.en :target, .dil.en:target) .dil.en { display: grid; }
+main:has(.dil.en :target, .dil.en:target) .dil.tr { display: none; }
+
+.bolumler { display: flex; flex-direction: column; gap: 2px; align-self: start; }
+.bolumler a { color: var(--soluk); font-size: 15px; line-height: 1.25; }
+.bolumler a:hover { color: var(--yazi); }
+.bolumler a[aria-current] { color: var(--yazi); background: color-mix(in srgb, var(--kehribar) 18%, transparent); box-shadow: inset 3px 0 0 var(--kehribar); }
+.bolumler .dis { margin-top: 12px; border-top: 1px solid var(--cizgi); border-radius: 0; font-weight: 500; }
+
+.panel { min-height: 0; overflow: auto; background: var(--kart); border: 1px solid var(--cizgi); border-radius: 16px; padding: clamp(18px, 3vw, 36px); }
+.bolum { display: none; }
+.bolum:target, .panel:not(:has(.bolum:target)) .bolum:first-child { display: block; }
+.bolum > :first-child { margin-top: 0; }
+
+/* ---------- metin ---------- */
+h1 { font-size: 24px; line-height: 1.25; margin: 0 0 6px; font-stretch: 112%; }
+h2 { font-size: 18px; margin: 26px 0 8px; }
 h3 { font-size: 16px; margin: 20px 0 6px; }
 p, li { max-width: 68ch; }
-a { color: var(--vurgu); }
 .soluk { color: var(--soluk); font-size: 14px; }
-.kart { background: var(--kart); border: 1px solid var(--cizgi); border-radius: 12px; padding: 18px; margin: 16px 0; }
 .uyari { background: var(--uyari); border-radius: 10px; padding: 12px 14px; margin: 12px 0; }
+.kart { border-top: 1px solid var(--cizgi); padding-top: 4px; margin-top: 8px; }
+.kart:first-child { border-top: none; margin-top: 0; padding-top: 0; }
 table { border-collapse: collapse; width: 100%; font-size: 15px; }
 th, td { text-align: left; vertical-align: top; padding: 8px 6px; border-bottom: 1px solid var(--cizgi); }
+.dugme-bag { display: inline-flex; align-items: center; min-height: 44px; padding: 0 18px; border-radius: 10px; background: var(--kehribar); color: var(--tezgah); font-weight: 700; text-decoration: none; }
+
+/* ---------- form (hesap silme) ---------- */
 button { font: inherit; padding: 10px 16px; border-radius: 9px; border: 1px solid var(--vurgu); background: transparent; color: var(--vurgu); cursor: pointer; min-height: 44px; }
 button.ana { background: var(--vurgu); color: var(--kart); }
 button.tehlike { border-color: var(--hata); color: var(--hata); }
@@ -26,5 +67,18 @@ input { font: inherit; padding: 10px 12px; border-radius: 9px; border: 1px solid
 .satir { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
 .durum { min-height: 1.6em; margin: 8px 0; }
 .durum.hata { color: var(--hata); }
-nav { display: flex; gap: 16px; flex-wrap: wrap; font-size: 15px; margin-bottom: 20px; }
-[hidden] { display: none !important; }
+
+/* ---------- telefon: bölümler üstte şerit ---------- */
+@media (max-width: 699px) {
+  :root { --ust: 56px; }
+  .logo img { height: 30px; }
+  .diller a { padding: 0 10px; font-size: 14px; }
+  .dil { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr); gap: 10px; }
+  .bolumler { flex-direction: row; overflow-x: auto; gap: 4px; scrollbar-width: none; }
+  .bolumler a { flex: none; white-space: nowrap; font-size: 14px; padding: 0 12px; border: 1.5px solid var(--cizgi); }
+  .bolumler a[aria-current] { box-shadow: none; border-color: var(--kehribar); }
+  .bolumler .dis { margin: 0; border-top: 1.5px solid var(--cizgi); border-radius: 10px; }
+  .panel { padding: 16px; border-radius: 14px; }
+  h1 { font-size: 21px; }
+  table { font-size: 14px; }
+}

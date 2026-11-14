@@ -2,19 +2,28 @@
 <html lang="tr">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Hesap silme</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Hesap silme · Delete account</title>
+<meta name="theme-color" content="#17283b">
 <link rel="icon" href="/marka/simge.svg" type="image/svg+xml">
 <link rel="stylesheet" href="/stil.css">
 </head>
-<body>
+<body class="belge">
+<a class="logo" href="/"><img src="/marka/logo-acik.svg" alt="ASYWorks ana sayfa" width="163" height="40"></a>
+<nav class="diller" aria-label="Dil / Language"><a class="d-tr" href="#ne" lang="tr">Türkçe</a><a class="d-en" href="#en" lang="en">English</a></nav>
 <main>
-  <nav><a href="/">Ana sayfa</a><a href="/gizlilik/">Gizlilik</a><a href="#en">English</a></nav>
-  <h1>Hesap ve veri silme</h1>
-  <p>Halka Kelime, Sticky Ten, Beat Greedy ve bu sayfaya bağlantı veren diğer oyunlarda tek hesap kullanılır. Burada isterseniz <strong>yalnız bir oyundaki verinizi</strong>, isterseniz <strong>bütün hesabınızı</strong> silebilirsiniz. Aynı işlemi oyunun içindeki "Hesabı sil" seçeneğiyle de yapabilirsiniz.</p>
-
-  <div class="kart">
-    <h2 style="margin-top:0">Ne silinir, ne kalır</h2>
+  <div class="dil tr">
+    <nav class="bolumler" aria-label="Bölümler">
+      <a href="#ne">Ne silinir</a>
+      <a href="#sil">Hesabı sil</a>
+      <a class="dis" href="/gizlilik/">Gizlilik</a>
+    </nav>
+    <div class="panel">
+      <section class="bolum" id="ne">
+        <h1>Hesap ve veri silme</h1>
+        <p>Halka Kelime, Sticky Ten, Beat Greedy ve bu sayfaya bağlantı veren diğer oyunlarda tek hesap kullanılır. Burada isterseniz <strong>yalnız bir oyundaki verinizi</strong>, isterseniz <strong>bütün hesabınızı</strong> silebilirsiniz. Aynı işlemi oyunun içindeki "Hesabı sil" seçeneğiyle de yapabilirsiniz.</p>
+        <div>
+    <h2>Ne silinir, ne kalır</h2>
     <ul>
       <li><strong>Bu oyundaki verimi sil:</strong> o oyundaki takma adınız, ilerlemeniz, skorlarınız, lig ve istatistikleriniz, ödülleriniz, şikâyet kayıtlarınız ve hesabınızdaki satın alma kaydı silinir. Hesabınız ve öbür oyunlarınız kalır.</li>
       <li><strong>Hesabımı tamamen sil:</strong> e-posta adresiniz ya da Google/Apple bağlantınız dahil bütün oyunlardaki bütün verileriniz silinir. Bu işlem geri alınamaz.</li>
@@ -23,7 +32,10 @@
     <div class="uyari">Hesap bağlamadan (misafir olarak) oynadıysanız verileriniz yalnız o cihazdaki oyuna bağlıdır: silmek için oyunun içindeki "Hesabı sil" seçeneğini kullanın. Kullanılmayan misafir verileri 90 gün sonra kendiliğinden silinir.</div>
   </div>
 
-  <div class="kart" id="giris">
+        <p><a class="dugme-bag" href="#sil">Silmeye geç</a></p>
+      </section>
+      <section class="bolum" id="sil">
+        <div class="kart" id="giris">
     <h2 style="margin-top:0">1. Giriş yapın</h2>
     <p>Oyunda hangi yolla girdiyseniz onu kullanın.</p>
     <div id="googleDugme" class="satir"></div>
@@ -33,7 +45,7 @@
     <div class="durum" id="girisDurum" role="status"></div>
   </div>
 
-  <div class="kart" id="islem" hidden>
+        <div class="kart" id="islem" hidden>
     <h2 style="margin-top:0">2. Ne silmek istiyorsunuz?</h2>
     <p>Giriş yapılan hesap: <strong id="kim"></strong> <button id="cikis" style="margin-left:8px">Çıkış</button></p>
     <h3>Verinizin olduğu oyunlar</h3>
@@ -44,10 +56,22 @@
     <div class="durum" id="islemDurum" role="status"></div>
   </div>
 
-  <section id="en" lang="en" class="kart">
-    <h2 style="margin-top:0">Delete your account (English)</h2>
-    <p>Halka Kelime, Sticky Ten, Beat Greedy and other linked games share one account. On this page you can delete <strong>your data in one game</strong> (nickname, progress, scores, leagues, rewards, purchase record; your account and other games remain) or <strong>your whole account</strong> (all data in all games, including your email or Google/Apple link; cannot be undone; type <strong>DELETE</strong> in the confirmation box). Sign in above with the method you used in the game, then choose. Deletion is immediate; backups are cleared shortly after. Store purchase records stay with Google Play / the App Store and can be restored with "Restore purchases". If you played as a guest without linking an account, use "Delete account" inside the game; unused guest data is deleted automatically after 90 days. Questions: <a href="mailto:asyworks0@gmail.com">asyworks0@gmail.com</a></p>
-  </section>
+      </section>
+    </div>
+  </div>
+  <div class="dil en" id="en" lang="en">
+    <nav class="bolumler" aria-label="Sections">
+      <a href="#en-delete">Delete your account</a>
+      <a class="dis" href="/gizlilik/#en">Privacy</a>
+    </nav>
+    <div class="panel">
+      <section class="bolum" id="en-delete">
+        <h1>Delete your account</h1>
+        <p>Halka Kelime, Sticky Ten, Beat Greedy and other linked games share one account. On this page you can delete <strong>your data in one game</strong> (nickname, progress, scores, leagues, rewards, purchase record; your account and other games remain) or <strong>your whole account</strong> (all data in all games, including your email or Google/Apple link; cannot be undone; type <strong>DELETE</strong> in the confirmation box). Sign in on the <a href="#sil">Delete</a> tab with the method you used in the game, then choose. Deletion is immediate; backups are cleared shortly after. Store purchase records stay with Google Play / the App Store and can be restored with "Restore purchases". If you played as a guest without linking an account, use "Delete account" inside the game; unused guest data is deleted automatically after 90 days. Questions: <a href="mailto:asyworks0@gmail.com">asyworks0@gmail.com</a></p>
+  
+      </section>
+    </div>
+  </div>
 </main>
 
 <script type="module">
@@ -176,5 +200,6 @@
     $("islem").replaceChildren(Object.assign(document.createElement("p"), { textContent: "Hesabınız ve bütün verileriniz silindi." }));
   });
 </script>
+<script src="/sekme.js"></script>
 </body>
 </html>

@@ -2,7 +2,7 @@
 <html lang="tr">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>ASYWorks: oyun stüdyosu</title>
 <meta name="description" content="ASYWorks bağımsız bir oyun stüdyosu. Hop Koala, Halka Kelime, Sticky Ten ve Beat Greedy: kelime, kart, bulmaca ve küçük çocuklar için reklamsız oyunlar.">
 <link rel="alternate" hreflang="tr" href="https://asyworks.com/">
@@ -17,126 +17,128 @@
 <link rel="stylesheet" href="/ana.css">
 </head>
 <body>
-<header class="ust">
-  <div class="ic menu">
-    <a class="logo" href="/"><img src="/marka/logo-acik.svg" alt="ASYWorks" width="163" height="40"></a>
-    <nav aria-label="Sayfa içi">
-      <a href="#oyunlar">Oyunlar</a>
-      <a href="#studyo">Stüdyo</a>
-      <a href="#iletisim">İletişim</a>
-    </nav>
-    <a class="dil" href="/en/" hreflang="en" lang="en">English</a>
-  </div>
-
-  <div class="ic giris">
-    <div class="metin">
-      <h1 class="genis">Telefonda kısa, akılda uzun süren oyunlar</h1>
-      <p>ASYWorks bağımsız bir oyun stüdyosu. Kelime, kart ve bulmaca oyunlarıyla küçük çocuklar için sakin oyunlar yapıyoruz. Hiçbirinde reklam yok.</p>
-      <a class="dugme" href="#oyunlar">Oyunları gör</a>
-    </div>
-    <div class="raf">
-      <svg class="a" viewBox="130 180 545 365" aria-hidden="true"><path fill="#213a56" d="M196 538 Q142 538 165 496 L341 226 Q364 187 402 187 Q442 187 465 225 L639 496 Q662 538 608 538 H575 Q552 538 539 515 L418 310 Q404 288 391 310 L266 515 Q253 538 229 538 Z"/></svg>
-      <div class="kama"></div>
-      <div class="simgeler">
-        <a href="#hop-koala"><img src="/oyunlar/hop-koala.webp" alt="Hop Koala" width="256" height="256"></a>
-        <a href="#halka-kelime"><img src="/oyunlar/halka-kelime.webp" alt="Halka Kelime" width="256" height="256"></a>
-        <a href="#sticky-ten"><img src="/oyunlar/sticky-ten.webp" alt="Sticky Ten" width="256" height="256"></a>
-        <a href="#beat-greedy"><img src="/oyunlar/beat-greedy.webp" alt="Beat Greedy" width="256" height="256"></a>
-      </div>
-    </div>
-  </div>
-</header>
+<a class="logo" href="#ana"><img src="/marka/logo-acik.svg" alt="ASYWorks ana sayfa" width="163" height="40"></a>
+<nav class="sekmeler" aria-label="Bölümler">
+  <a class="s-ana" href="#ana">Ana sayfa</a>
+  <a class="s-oyunlar" href="#oyunlar">Oyunlar</a>
+  <a class="s-studyo" href="#studyo">Stüdyo</a>
+  <a class="s-iletisim" href="#iletisim">İletişim</a>
+</nav>
+<a class="dil" href="/en/" hreflang="en" lang="en">English</a>
 
 <main>
-  <section class="ic oyunlar" id="oyunlar">
-    <h2 class="bolum-baslik genis">Oyunlar</h2>
-    <p class="bolum-alt">Dördü de webde, telefonda ve tablette çalışır. Google Play ve App Store sürümleri yolda.</p>
-
-    <article class="oyun hop" id="hop-koala">
+  <section class="pano ana" id="ana" aria-label="Ana sayfa">
+    <div class="ic">
       <div class="metin">
-        <div class="kimlik"><img src="/oyunlar/hop-koala.webp" alt="" width="72" height="72"><h3 class="genis">Hop Koala</h3></div>
-        <p class="ozet">2–3 yaş için sakin oyunlar. Çocuk dokunur, dinler, keşfeder; ekranda yazı, süre ya da kaybetmek yok.</p>
-        <dl>
-          <dt>Kimin için</dt><dd>2–3 yaş ve ebeveynleri</dd>
-          <dt>İçinde</dt><dd>60'tan fazla oyun: resimli kitaplar, eşleştirme, boyama, yapboz</dd>
-          <dt>Ebeveyn için</dt><dd>İnternetsiz çalışır, veri toplamaz, Türkçe ve İngilizce seslendirme</dd>
-        </dl>
-        <a class="dugme" href="https://hopkoala.com">Hop Koala'yı aç</a>
-        <p class="yakinda">Google Play ve App Store'da yakında</p>
+        <h1 class="genis">Telefonda kısa, akılda uzun süren oyunlar</h1>
+        <p>ASYWorks bağımsız bir oyun stüdyosu. Kelime, kart ve bulmaca oyunlarıyla küçük çocuklar için sakin oyunlar yapıyoruz. Hiçbirinde reklam yok.</p>
+        <a class="dugme" href="#oyunlar">Oyunları gör</a>
       </div>
-      <div class="tel"><div class="cerceve"><img src="/oyunlar/hop-koala-ekran.webp" alt="Hop Koala ana ekranı: dört oyun kartı ve koala" width="600" height="1298" loading="lazy"></div></div>
-    </article>
-
-    <article class="oyun halka" id="halka-kelime">
-      <div class="metin">
-        <div class="kimlik"><img src="/oyunlar/halka-kelime.webp" alt="" width="72" height="72"><h3 class="genis">Halka Kelime</h3></div>
-        <p class="ozet">İç içe halkaları döndür; merkezden dışa her ışında aynı temadan bir Türkçe kelime kur.</p>
-        <dl>
-          <dt>Tür</dt><dd>Türkçe kelime bulmacası</dd>
-          <dt>Her gün</dt><dd>Yeni bulmaca; pazartesi 4 halka, pazar 7 halka</dd>
-          <dt>Ayrıca</dt><dd>Haftalık lig ve sıralama</dd>
-        </dl>
-        <a class="dugme" href="https://www.halkakelime.com">Halka Kelime'yi aç</a>
-        <p class="yakinda">Google Play ve App Store'da yakında</p>
-      </div>
-      <div class="tel"><div class="cerceve"><img src="/oyunlar/halka-kelime-ekran.webp" alt="Halka Kelime bulmacası: harflerle dolu iç içe halkalar" width="600" height="1298" loading="lazy"></div></div>
-    </article>
-
-    <article class="oyun sticky" id="sticky-ten">
-      <div class="metin">
-        <div class="kimlik"><img src="/oyunlar/sticky-ten.webp" alt="" width="72" height="72"><h3 class="genis">Sticky Ten</h3></div>
-        <p class="ozet">Rengini gizle, 10'u sıradakine pasla. Bitirmek her zaman kazandırmaz; doğru anı kollayan kazanır.</p>
-        <dl>
-          <dt>Tür</dt><dd>Strateji kart oyunu</dd>
-          <dt>Kaç kişi</dt><dd>3–7 oyuncu; arkadaşlarınla, açık masalarda ya da botlarla</dd>
-          <dt>Ayrıca</dt><dd>İnternetsiz bot modu, hesaplı oyunculara rating</dd>
-        </dl>
-        <a class="dugme" href="https://stickyten.com">Sticky Ten'i aç</a>
-        <p class="yakinda">Google Play ve App Store'da yakında</p>
-      </div>
-      <div class="tel"><div class="cerceve"><img src="/oyunlar/sticky-ten-ekran.webp" alt="Sticky Ten oyun masası: beş oyuncu ve eldeki kartlar" width="600" height="1298" loading="lazy"></div></div>
-    </article>
-
-    <article class="oyun greedy" id="beat-greedy">
-      <div class="metin">
-        <div class="kimlik"><img src="/oyunlar/beat-greedy.webp" alt="" width="72" height="72"><h3 class="genis">Beat Greedy</h3></div>
-        <p class="ozet">İlk akla gelen hamle seni yanıltır. Ünlü zor problemlerden doğan bulmacalarda sezgini Açgözlü robota karşı dene.</p>
-        <dl>
-          <dt>Tür</dt><dd>Strateji bulmacası</dd>
-          <dt>İçinde</dt><dd>10 oyun, her birinde 8 bölüm</dd>
-          <dt>Her gün</dt><dd>Herkesin aynı bulmacayı çözdüğü Keşif ve Yarış</dd>
-        </dl>
-        <p class="yakinda">Webde, Google Play'de ve App Store'da yakında</p>
-      </div>
-      <div class="tel"><div class="cerceve"><img src="/oyunlar/beat-greedy-ekran.webp" alt="Beat Greedy ana menüsü: Seviyeler, Keşif ve Yarış" width="600" height="1298" loading="lazy"></div></div>
-    </article>
+      <svg class="raf" viewBox="0 0 600 540" preserveAspectRatio="xMidYMax meet" role="group" aria-label="Oyunlar">
+        <defs><clipPath id="yuvarlak" clipPathUnits="objectBoundingBox"><rect width="1" height="1" rx=".22"/></clipPath></defs>
+        <svg x="36" y="0" width="528" height="443" viewBox="130 180 545 365" preserveAspectRatio="xMidYMax meet" aria-hidden="true"><path fill="#213a56" d="M196 538 Q142 538 165 496 L341 226 Q364 187 402 187 Q442 187 465 225 L639 496 Q662 538 608 538 H575 Q552 538 539 515 L418 310 Q404 288 391 310 L266 515 Q253 538 229 538 Z"/></svg>
+        <polygon class="kama" points="42,443 558,443 600,540 0,540"/>
+        <a href="#hop-koala" aria-label="Hop Koala"><rect class="golge" x="58" y="349" width="100" height="100" rx="22"/><image href="/oyunlar/hop-koala.webp" x="54" y="335" width="108" height="108" clip-path="url(#yuvarlak)"/></a>
+        <a href="#halka-kelime" aria-label="Halka Kelime"><rect class="golge" x="186" y="349" width="100" height="100" rx="22"/><image href="/oyunlar/halka-kelime.webp" x="182" y="335" width="108" height="108" clip-path="url(#yuvarlak)"/></a>
+        <a href="#sticky-ten" aria-label="Sticky Ten"><rect class="golge" x="314" y="349" width="100" height="100" rx="22"/><image href="/oyunlar/sticky-ten.webp" x="310" y="335" width="108" height="108" clip-path="url(#yuvarlak)"/></a>
+        <a href="#beat-greedy" aria-label="Beat Greedy"><rect class="golge" x="442" y="349" width="100" height="100" rx="22"/><image href="/oyunlar/beat-greedy.webp" x="438" y="335" width="108" height="108" clip-path="url(#yuvarlak)"/></a>
+      </svg>
+    </div>
   </section>
 
-  <section class="ic studyo" id="studyo">
-    <h2 class="genis">Küçük bir stüdyo, birkaç sabit kural</h2>
-    <dl>
-      <dt>Reklam yok</dt>
-      <dd>Oyunun ortasında reklam, reklam kimliği ya da reklam için toplanan veri yok.</dd>
-      <dt>Az veri</dt>
-      <dd>Yalnız oyunun çalışması için gerekeni tutarız; veriler AB'de saklanır. Ayrıntısı <a href="/gizlilik/">gizlilik politikasında</a>.</dd>
-      <dt>Para değil, düşünmek</dt>
-      <dd>Kurallar birkaç dakikada öğrenilir. Sıralamada öne geçmenin yolu satın almak değil, iyi oynamak.</dd>
-    </dl>
+  <section class="pano oyunlar" id="oyunlar" aria-label="Oyunlar">
+    <div class="ic">
+      <nav class="secici" aria-label="Oyun seç">
+        <a class="hop" href="#hop-koala"><img src="/oyunlar/hop-koala.webp" alt="" width="44" height="44"><span>Hop Koala</span></a>
+        <a class="halka" href="#halka-kelime"><img src="/oyunlar/halka-kelime.webp" alt="" width="44" height="44"><span>Halka Kelime</span></a>
+        <a class="sticky" href="#sticky-ten"><img src="/oyunlar/sticky-ten.webp" alt="" width="44" height="44"><span>Sticky Ten</span></a>
+        <a class="greedy" href="#beat-greedy"><img src="/oyunlar/beat-greedy.webp" alt="" width="44" height="44"><span>Beat Greedy</span></a>
+      </nav>
+      <div class="pencere">
+        <article class="oyun hop" id="hop-koala">
+          <h2 class="genis">Hop Koala</h2>
+          <p class="ozet">2–3 yaş için sakin oyunlar. Çocuk dokunur, dinler, keşfeder; ekranda yazı, süre ya da kaybetmek yok.</p>
+          <dl>
+            <dt>Kimin için</dt><dd>2–3 yaş ve ebeveynleri</dd>
+            <dt>İçinde</dt><dd>60'tan fazla oyun: resimli kitaplar, eşleştirme, boyama, yapboz</dd>
+            <dt>Ebeveyn için</dt><dd>İnternetsiz çalışır, veri toplamaz, Türkçe ve İngilizce seslendirme</dd>
+          </dl>
+          <div class="eylem"><a class="dugme" href="https://hopkoala.com">Hop Koala'yı aç</a><p class="yakinda">Google Play ve App Store'da yakında</p></div>
+          <svg class="tel" viewBox="0 0 520 900" preserveAspectRatio="xMidYMax meet" role="img" aria-label="Hop Koala ana ekranı: dört oyun kartı ve koala"><use href="#cerceve"/><image href="/oyunlar/hop-koala-ekran.webp" x="65" y="8" width="390" height="844" preserveAspectRatio="xMidYMin slice" clip-path="url(#ekran)"/><use href="#tel-kama"/></svg>
+        </article>
+        <article class="oyun halka" id="halka-kelime">
+          <h2 class="genis">Halka Kelime</h2>
+          <p class="ozet">İç içe halkaları döndür; merkezden dışa her ışında aynı temadan bir Türkçe kelime kur.</p>
+          <dl>
+            <dt>Tür</dt><dd>Türkçe kelime bulmacası</dd>
+            <dt>Her gün</dt><dd>Yeni bulmaca; pazartesi 4 halka, pazar 7 halka</dd>
+            <dt>Ayrıca</dt><dd>Haftalık lig ve sıralama</dd>
+          </dl>
+          <div class="eylem"><a class="dugme" href="https://www.halkakelime.com">Halka Kelime'yi aç</a><p class="yakinda">Google Play ve App Store'da yakında</p></div>
+          <svg class="tel" viewBox="0 0 520 900" preserveAspectRatio="xMidYMax meet" role="img" aria-label="Halka Kelime bulmacası: harflerle dolu iç içe halkalar"><use href="#cerceve"/><image href="/oyunlar/halka-kelime-ekran.webp" x="65" y="8" width="390" height="844" preserveAspectRatio="xMidYMin slice" clip-path="url(#ekran)"/><use href="#tel-kama"/></svg>
+        </article>
+        <article class="oyun sticky" id="sticky-ten">
+          <h2 class="genis">Sticky Ten</h2>
+          <p class="ozet">Rengini gizle, 10'u sıradakine pasla. Bitirmek her zaman kazandırmaz; doğru anı kollayan kazanır.</p>
+          <dl>
+            <dt>Tür</dt><dd>Strateji kart oyunu</dd>
+            <dt>Kaç kişi</dt><dd>3–7 oyuncu; arkadaşlarınla, açık masalarda ya da botlarla</dd>
+            <dt>Ayrıca</dt><dd>İnternetsiz bot modu, hesaplı oyunculara rating</dd>
+          </dl>
+          <div class="eylem"><a class="dugme" href="https://stickyten.com">Sticky Ten'i aç</a><p class="yakinda">Google Play ve App Store'da yakında</p></div>
+          <svg class="tel" viewBox="0 0 520 900" preserveAspectRatio="xMidYMax meet" role="img" aria-label="Sticky Ten oyun masası: beş oyuncu ve eldeki kartlar"><use href="#cerceve"/><image href="/oyunlar/sticky-ten-ekran.webp" x="65" y="8" width="390" height="844" preserveAspectRatio="xMidYMin slice" clip-path="url(#ekran)"/><use href="#tel-kama"/></svg>
+        </article>
+        <article class="oyun greedy" id="beat-greedy">
+          <h2 class="genis">Beat Greedy</h2>
+          <p class="ozet">İlk akla gelen hamle seni yanıltır. Ünlü zor problemlerden doğan bulmacalarda sezgini Açgözlü robota karşı dene.</p>
+          <dl>
+            <dt>Tür</dt><dd>Strateji bulmacası</dd>
+            <dt>İçinde</dt><dd>10 oyun, her birinde 8 bölüm</dd>
+            <dt>Her gün</dt><dd>Herkesin aynı bulmacayı çözdüğü Keşif ve Yarış</dd>
+          </dl>
+          <div class="eylem"><p class="yakinda">Webde, Google Play'de ve App Store'da yakında</p></div>
+          <svg class="tel" viewBox="0 0 520 900" preserveAspectRatio="xMidYMax meet" role="img" aria-label="Beat Greedy ana menüsü: Seviyeler, Keşif ve Yarış"><use href="#cerceve"/><image href="/oyunlar/beat-greedy-ekran.webp" x="65" y="8" width="390" height="844" preserveAspectRatio="xMidYMin slice" clip-path="url(#ekran)"/><use href="#tel-kama"/></svg>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="pano studyo" id="studyo" aria-label="Stüdyo">
+    <div class="ic">
+      <h2 class="genis">Küçük bir stüdyo, birkaç sabit kural</h2>
+      <dl>
+        <dt>Reklam yok</dt>
+        <dd>Oyunun ortasında reklam, reklam kimliği ya da reklam için toplanan veri yok.</dd>
+        <dt>Az veri</dt>
+        <dd>Yalnız oyunun çalışması için gerekeni tutarız; veriler AB'de saklanır. Ayrıntısı <a href="/gizlilik/">gizlilik politikasında</a>.</dd>
+        <dt>Para değil, düşünmek</dt>
+        <dd>Kurallar birkaç dakikada öğrenilir. Sıralamada öne geçmenin yolu satın almak değil, iyi oynamak.</dd>
+      </dl>
+    </div>
+  </section>
+
+  <section class="pano iletisim" id="iletisim" aria-label="İletişim">
+    <div class="ic">
+      <img src="/marka/simge.svg" alt="" width="72" height="72">
+      <p>Soru, öneri ya da hata bildirimi için yazın.</p>
+      <a class="eposta genis" href="mailto:asyworks0@gmail.com">asyworks0@gmail.com</a>
+      <ul class="baglantilar">
+        <li><a href="https://x.com/ASYWorks0">X</a></li>
+        <li><a href="https://instagram.com/asyworks0">Instagram</a></li>
+        <li><a href="/gizlilik/">Gizlilik</a></li>
+        <li><a href="/hesap-sil/">Hesap silme</a></li>
+      </ul>
+      <p class="telif">© 2026 ASYWorks</p>
+    </div>
   </section>
 </main>
 
-<footer class="alt" id="iletisim">
-  <div class="ic">
-    <img src="/marka/simge.svg" alt="" width="56" height="56">
-    <a class="iletisim genis" href="mailto:asyworks0@gmail.com">asyworks0@gmail.com</a>
-    <nav aria-label="Bağlantılar">
-      <a href="https://x.com/ASYWorks0">X</a>
-      <a href="https://instagram.com/asyworks0">Instagram</a>
-      <a href="/gizlilik/">Gizlilik</a>
-      <a href="/hesap-sil/">Hesap silme</a>
-      <span>© 2026 ASYWorks</span>
-    </nav>
-  </div>
-</footer>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <clipPath id="ekran"><rect x="65" y="8" width="390" height="844" rx="32"/></clipPath>
+    <rect id="cerceve" x="57" y="0" width="406" height="860" rx="40" fill="#0c1620"/>
+    <polygon id="tel-kama" points="36,856 484,856 520,900 0,900" fill="#f2b544"/>
+  </defs>
+</svg>
 </body>
 </html>

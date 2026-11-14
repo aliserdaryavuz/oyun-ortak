@@ -65,7 +65,17 @@ Satır uzunluğu en çok 60 karakter.
 
 - Köşe yarıçapı hiyerarşiye göre değişir: oyun bandı 32 px, telefon çerçevesi 36 px, simge %22, düğme 10 px.
 - Dokunma hedefi en az 44 px. Klavye odağı kehribar, 3 px.
-- 360 px genişlikte yatay kaydırma yok. Oyun bantları dar ekranda alt alta (metin üstte, telefon altta).
+- Sayfa kaydırılmaz (oyunlardaki tam ekran kuralı); ayrıntı §4.1.
+
+### 4.1 Tek ekran (14 Kasım 2026)
+
+- Kök `100dvh`, gövde `overflow: hidden`. Bölümler sekmedir: Ana sayfa, Oyunlar, Stüdyo, İletişim. Sekmeler geniş ekranda üst çubukta, 700 px altında altta.
+- Sekme ve oyun seçimi yalnız CSS ile (`:target` + `:has`); JavaScript gerekmez, geri tuşu ve doğrudan bağlantı (`/#halka-kelime`) çalışır.
+- Oyunlar tek tek, kendi renginde bir pencerede gösterilir. Pencere geniş ekranda iki sütun (metin, telefon), dikeyde bilgi solda telefon sağda; kısa dikey pencerede (560 px altı) başlık ve açıklama aynı satırda.
+- Telefon çerçevesi ve kehribar raf SVG'dir: kalan yüksekliğe sığar, oranı bozulmaz. Yazı basamakları bölüm kutusunun boyuna göre ölçeklenir (`cqw`/`cqh`).
+- Bölüm içi kaydırma yalnız son çare (360×640'tan küçük ekran, büyük yakınlaştırma); içerik kesilmez.
+- Gizlilik ve hesap silme aynı kabukta; bölümleri sekme. Tablet ve bilgisayarda her sekme sığar. Telefonda uzun yasal metin panel içinde kayar (tek istisna); sayfa kaymaz.
+- Kabul: 360×640, 390×844, 820×1180, 1180×820, 1440×900 (ayrıca 1024×768, 1920×1080) görünümlerinde her sekme ve her oyun için sayfa ve bölüm kaydırması 0.
 
 ## 5. Metin
 
