@@ -147,7 +147,7 @@ max_catalogs = 2
 
 # Store vector embeddings in S3 for large and durable datasets
 [storage.vector]
-enabled = true
+enabled = false
 max_buckets = 10
 max_indexes = 5
 
@@ -457,6 +457,9 @@ additional_redirect_urls = [
   "https://halkakelime.com/**",
   "com.halkakelime.app://**",
   "https://stickyten.com/**",
+  "https://www.beatgreedy.com/**",
+  "https://beatgreedy.com/**",
+  "https://beat-greedy.pages.dev/**",
 ]
 
 [remotes.canli.auth.email]
