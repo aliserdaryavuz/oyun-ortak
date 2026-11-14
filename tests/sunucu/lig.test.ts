@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { bellekDepo } from "../../src/kayit/index.ts";
 import { hesapBaslat } from "../../src/hesap/index.ts";
 import { odulCubugu, siralamaBaslat } from "../../src/siralama/index.ts";
-import { istemci, oyunuTemizle, sql } from "./yardimci.ts";
+import { istemci, kaliciGir, oyunuTemizle, sql } from "./yardimci.ts";
 
 before(() => oyunuTemizle());
 after(() => sql.end());
@@ -77,7 +77,7 @@ test("kapanış: ilk %20 çıkar, son %20 iner, 0 puan sıraya girmez; ikinci ç
 test("lig durumu: grup üyeleri, ben bayrağı, geçen haftanın sonucu", async () => {
   const c = istemci();
   const h = hesapBaslat({ supabase: c, oyunId: "deneme", depo: bellekDepo() });
-  const id = await h.anonimGir();
+  const id = await kaliciGir(h);
   await h.adDegistir(`Ligci${Math.floor(Math.random() * 1e6)}`);
   await sql`update ortak.oyuncular set kademe = 1 where oyun_id = 'deneme' and kullanici_id = ${id}`;
   await skor(id, gunu(gecen, 0), 4);

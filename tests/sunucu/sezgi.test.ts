@@ -71,7 +71,7 @@ test("BG-1: şikâyetle sıfırlanan ad Beat Greedy profilinde de değişir ve y
   assert.equal((await sql`select ad from ortak.oyuncular where oyun_id = 'sezgi' and kullanici_id = ${hedef.id}`)[0]!.ad, null);
   // aynı ad ne Beat Greedy'den ne ortak yoldan yeniden alınabilir; başka bir ad hemen alınabilir
   assert.match((await hedef.sezgi().from("profiles").update({ username: ad }).eq("id", hedef.id)).error?.message ?? "", /ad_uygunsuz/);
-  assert.deepEqual(await hedef.h.adDegistir(ad), { durum: "uygunsuz" });
+  await assert.rejects(hedef.h.adDegistir(ad), /kalici_hesap_gerekli/); // ortak yol misafire kapalı; engelli liste ad_denetimi testlerinde
   assert.equal((await hedef.sezgi().from("profiles").update({ username: `temiz_${Math.floor(Math.random() * 1e6)}` }).eq("id", hedef.id)).error, null);
 });
 

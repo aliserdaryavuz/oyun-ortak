@@ -4,7 +4,7 @@ import { bellekDepo } from "../../src/kayit/index.ts";
 import { hesapBaslat } from "../../src/hesap/index.ts";
 import { odemeBaslat } from "../../src/odeme/index.ts";
 import { etkinlikBaslat } from "../../src/etkinlik/index.ts";
-import { istemci, kaliciKullanici, rpc, sql, URL, yonetici } from "./yardimci.ts";
+import { istemci, kaliciGir, kaliciKullanici, rpc, sql, URL, yonetici } from "./yardimci.ts";
 
 after(() => sql.end());
 
@@ -97,6 +97,9 @@ test("ödüller: ağsızken bekler, oturumla bir kez eşitlenir, başka cihaza g
   await e.odulKazan("rozet-ilk", "usta"); // oturum yok: yerelde bekler
   const h = hesapBaslat({ supabase: c, oyunId: "deneme", depo: bellekDepo() });
   await h.anonimGir();
+  await e.esitle(); // misafir ödül yazamaz: yerelde bekler
+  assert.deepEqual(await rpc(c, "odullerim", { p_oyun: "deneme" }), []);
+  await kaliciGir(h);
   await e.esitle();
   await e.esitle();
   assert.deepEqual((await rpc<{ odul: string }[]>(c, "odullerim", { p_oyun: "deneme" })).map((x) => x.odul), ["rozet-ilk"]);
@@ -138,7 +141,7 @@ test("devir: hak ve ödül var olan hesaba da taşınır; bu oyundan sil ikisini
 
   const { c, h, id } = await oyuncu();
   await webhook(satinAlma(id));
-  await rpc(c, "odul_kaydet", { p_oyun: "deneme", p_oduller: [{ odul: "misafir-rozeti" }] });
+  await sql`insert into ortak.oduller (oyun_id, kullanici_id, odul) values ('deneme', ${id}, 'misafir-rozeti')`; // eski misafir satırı
   const r = await h.disGiris(() => c.auth.signInWithPassword({ email: k.eposta, password: k.parola }));
   assert.equal(r.skorlarTasindi, false);
   assert.deepEqual(await haklarim(c), [{ hak: "tam", durum: "aktif" }]);

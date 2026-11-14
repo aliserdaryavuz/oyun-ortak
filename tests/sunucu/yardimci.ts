@@ -32,6 +32,13 @@ export async function kaliciKullanici() {
   return { id: data.user.id, eposta, parola };
 }
 
+/** Hesabı yeni bir kalıcı kullanıcıyla açar (takma ad, bulut kaydı ve ödül kalıcı hesap ister); kullanıcı kimliğini döner. */
+export async function kaliciGir(h: { supabase: SupabaseClient; disGiris: (gir: () => Promise<{ error: unknown }>) => Promise<unknown> }) {
+  const k = await kaliciKullanici();
+  await h.disGiris(() => h.supabase.auth.signInWithPassword({ email: k.eposta, password: k.parola }));
+  return k.id;
+}
+
 export const ortak = (c: SupabaseClient) => c.schema("ortak");
 
 export async function rpc<T = unknown>(c: SupabaseClient, ad: string, arg?: Record<string, unknown>): Promise<T> {

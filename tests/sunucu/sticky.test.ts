@@ -6,7 +6,7 @@ import { createHmac } from "node:crypto";
 import { bellekDepo } from "../../src/kayit/index.ts";
 import { hesapBaslat } from "../../src/hesap/index.ts";
 import { jetonDogrulayici, servisIstemcisi } from "../../src/sunucu-node/index.ts";
-import { istemci, sql, URL } from "./yardimci.ts";
+import { istemci, kaliciGir, sql, URL } from "./yardimci.ts";
 
 after(() => sql.end());
 
@@ -193,7 +193,7 @@ test("ST-4: Node jeton doğrulama — geçerli kabul; süresi geçmiş, sahte im
 test("silme: bu oyundan sil sticky verisini, takipleri ve ikili sayaçları temizler", async () => {
   const c = istemci();
   const h = hesapBaslat({ supabase: c, oyunId: "sticky", depo: bellekDepo() });
-  const id = await h.anonimGir();
+  const id = await kaliciGir(h);
   await h.adDegistir(`silsticky${Math.floor(Math.random() * 1e6)}`);
   const diger = await oyuncu();
   await sql`select sticky.oyun_sonu(${sql.json([{ user_id: id, score: 1, won: true, delta: 5 }])}, '2026-11-13', ${[`${diger.id}|${id}`]})`;

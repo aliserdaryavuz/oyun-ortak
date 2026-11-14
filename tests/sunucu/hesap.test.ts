@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { bellekDepo } from "../../src/kayit/index.ts";
 import { hesapBaslat } from "../../src/hesap/index.ts";
 import { siralamaBaslat } from "../../src/siralama/index.ts";
-import { bugun, istemci, kaliciKullanici, MAILPIT, ortak, rastgeleEposta, rpc, sql } from "./yardimci.ts";
+import { bugun, istemci, kaliciGir, kaliciKullanici, MAILPIT, ortak, rastgeleEposta, rpc, sql } from "./yardimci.ts";
 
 after(() => sql.end());
 
@@ -54,13 +54,13 @@ test("anonim oturum: ben, yaş onayı, otomatik ad", async () => {
 
 test("takma ad: biçim, uygunsuz söz, Türkçe katlamalı benzersizlik, 30 gün", async () => {
   const a = yeniHesap();
-  await a.anonimGir();
+  await kaliciGir(a);
   const ad = `Işık${Math.floor(Math.random() * 1e6)}`;
   assert.deepEqual(await a.adDegistir(ad), { durum: "ok", ad });
   assert.deepEqual(await a.adDegistir("Başka1"), { durum: "bekle", bekle_gun: 30 });
 
   const b = yeniHesap();
-  await b.anonimGir();
+  await kaliciGir(b);
   assert.equal((await b.adDegistir(ad.replace("Işık", "isik"))).durum, "alinmis");
   assert.equal((await b.adDegistir(ad.replace("Işık", "I.ŞIK"))).durum, "alinmis");
   // Sondaki rakamlar harfe çevrilmez (önce "Işık156759" → "isikists" → "sikis" yanlış pozitifti)
@@ -68,7 +68,7 @@ test("takma ad: biçim, uygunsuz söz, Türkçe katlamalı benzersizlik, 30 gün
   const harf = () => "abcdefghjkmnprstuvyz"[Math.floor(Math.random() * 20)]!;
   for (const iyi of ["Işık156759", "Bekçi4821", "Sis5"]) {
     const c = yeniHesap();
-    await c.anonimGir();
+    await kaliciGir(c);
     const ad = `${harf()}${harf()}${harf()}${iyi}`;
     assert.equal((await c.adDegistir(ad)).durum, "ok", ad);
   }
@@ -79,16 +79,32 @@ test("takma ad: biçim, uygunsuz söz, Türkçe katlamalı benzersizlik, 30 gün
   // yanlış pozitif olmamalı
   for (const iyi of ["Memet", "Seksen", "Sıkı Dost"]) {
     const c = yeniHesap();
-    await c.anonimGir();
+    await kaliciGir(c);
     assert.equal((await c.adDegistir(`${iyi}${Math.floor(Math.random() * 1000)}`)).durum, "ok", iyi);
   }
   // otomatik ad elle seçileni ezmez
   assert.deepEqual(await a.otomatikAd(), { durum: "ok", ad });
 });
 
-test("bulut kaydı: iyimser kilit ve birleştirme işlevi", async () => {
+test("misafir (anonim) takma ad seçemez, bulut kaydı ve ödül yazamaz", async () => {
   const h = yeniHesap();
   await h.anonimGir();
+  await assert.rejects(h.adDegistir("Misafir123"), /kalici_hesap_gerekli/);
+  await assert.rejects(rpc(h.supabase, "kayit_yaz", { p_oyun: "deneme", p_veri: { a: 1 }, p_surum: 0 }), /kalici_hesap_gerekli/);
+  await assert.rejects(rpc(h.supabase, "odul_kaydet", { p_oyun: "deneme", p_oduller: [{ odul: "x" }] }), /kalici_hesap_gerekli/);
+});
+
+test("ödül tavanı: oyun başına kullanıcı başına en çok 1000", async () => {
+  const h = yeniHesap();
+  const id = await kaliciGir(h);
+  await sql`insert into ortak.oduller (oyun_id, kullanici_id, odul) select 'deneme', ${id}, 'd' || i from generate_series(1, 950) i`;
+  await assert.rejects(rpc(h.supabase, "odul_kaydet", { p_oyun: "deneme", p_oduller: Array.from({ length: 51 }, (_, i) => ({ odul: `y${i}` })) }), /odul_tavan/);
+  assert.equal(await rpc(h.supabase, "odul_kaydet", { p_oyun: "deneme", p_oduller: Array.from({ length: 50 }, (_, i) => ({ odul: `y${i}` })) }), 50);
+});
+
+test("bulut kaydı: iyimser kilit ve birleştirme işlevi", async () => {
+  const h = yeniHesap();
+  await kaliciGir(h);
   const k = h.bulutKaydi<{ seviyeler: Record<string, number> }>();
   const birlestir = (y: { seviyeler: Record<string, number> }, u: { seviyeler: Record<string, number> }) => {
     const s = { ...u.seviyeler };
@@ -107,13 +123,11 @@ test("bulut kaydı: iyimser kilit ve birleştirme işlevi", async () => {
   await assert.rejects(rpc(h.supabase, "kayit_yaz", { p_oyun: "deneme", p_veri: { x: "y".repeat(270_000) }, p_surum: s + 1 }));
 });
 
-/** Misafir olarak ad, bulut kaydı ve bugünün skoru (puan 10) oluşturur. */
+/** Misafir olarak otomatik ad ve bugünün skoru (puan 10) oluşturur. Misafir takma ad seçemez, bulut kaydı yazamaz. */
 async function misafirOyna() {
   const h = yeniHesap();
   const anonId = await h.anonimGir();
-  const ad = `Misafir${Math.floor(Math.random() * 1e6)}`;
-  await h.adDegistir(ad);
-  await h.bulutKaydi().birlestir({ n: 1 }, (y) => ({ kayit: y }));
+  const ad = ((await h.otomatikAd()) as { ad: string }).ad;
   const s = siralamaBaslat({ supabase: h.supabase, oyunId: "deneme", depo: bellekDepo() });
   assert.equal((await s.gonder({ islem: "gunluk", gun: bugun(), kayit: [5, 5], kuralSurumu: 1 })).durum, 200);
   return { h, s, anonId, ad };
@@ -125,7 +139,6 @@ test("misafir → yeni kalıcı hesap: skor dahil her şey taşınır, anonim he
   const r = await h.disGiris(() => h.supabase.auth.signInWithPassword({ email: k.eposta, password: k.parola }));
   assert.deepEqual(r, { devredilen: ["deneme"], skorlarTasindi: true });
   assert.equal((await h.ben()).ad, ad);
-  assert.deepEqual((await h.bulutKaydi().oku())?.veri, { n: 1 });
   const t = await s.tablo("gunluk", bugun(), { ilk: 100 });
   assert.equal(t.satirlar.find((x) => x.ben)?.puan, 10);
   assert.equal((await sql`select count(*)::int as n from auth.users where id = ${anonId}`)[0]!.n, 0);
@@ -145,7 +158,6 @@ test("misafir → var olan kalıcı hesap: ad ve kayıt taşınır, skor taşın
   const ben = await h.ben();
   assert.equal(ben.anonim, false);
   assert.equal(ben.ad, ad); // kalıcı hesapta ad yoktu, misafirinki alındı
-  assert.deepEqual((await h.bulutKaydi().oku())?.veri, { n: 1 });
   const t = await s.tablo("gunluk", bugun(), { ilk: 100 });
   assert.equal(t.satirlar.find((x) => x.ben), undefined);
   const [{ n }] = await sql`select count(*)::int as n from auth.users where id = ${anonId}`;

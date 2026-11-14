@@ -138,6 +138,7 @@ export function hesapBaslat(a: HesapAyari) {
 
     ben: () => rpc<Ben>("ben", { p_oyun: a.oyunId }),
     yasOnayla: () => rpc<void>("yas_onayla"),
+    /** Yalnız kalıcı hesap (misafirde `kalici_hesap_gerekli`); misafir `otomatikAd` kullanır. */
     adDegistir: (ad: string) => rpc<AdSonucu>("ad_degistir", { p_oyun: a.oyunId, p_ad: ad }),
 
     /**
@@ -149,6 +150,7 @@ export function hesapBaslat(a: HesapAyari) {
     /** İlk kalıcı hesapta bir kez verilen kozmetik ödül kimliği; verildiyse null. */
     baglamaOdulu: () => rpc<string | null>("baglama_odulu_al", { p_oyun: a.oyunId }),
 
+    /** Yalnız kalıcı hesap yazar (misafirde `kalici_hesap_gerekli`); misafirin kaydı yerelde kalır, girişten sonra birleşir. */
     bulutKaydi<T>() {
       const oku = () => rpc<{ veri: T; surum: number } | null>("kayit_oku", { p_oyun: a.oyunId });
       return {

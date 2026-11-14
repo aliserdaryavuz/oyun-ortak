@@ -111,7 +111,7 @@ export function etkinlikBaslat<T>(a: EtkinlikAyari<T>) {
       return true;
     },
 
-    /** Bekleyen ödülleri sunucuya yazar, başka cihazda kazanılanları alır. Oturum ya da ağ yoksa sessizce geçer. */
+    /** Bekleyen ödülleri sunucuya yazar, başka cihazda kazanılanları alır. Oturum yoksa, misafirse ya da ağ yoksa sessizce geçer (ödül yerelde bekler). */
     async esitle(): Promise<void> {
       const sb = a.supabase;
       if (!sb || !(await sb.auth.getSession()).data.session) return;

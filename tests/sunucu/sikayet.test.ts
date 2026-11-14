@@ -48,6 +48,7 @@ test("ad şikâyeti: 3 farklı eski oyuncu adı sıfırlar; anonim ve yeni hesap
   assert.equal((await hedef.h.ben()).ad, null);
   const t = await siralamaBaslat({ supabase: hedef.c, oyunId: "deneme", depo: bellekDepo() }).tablo("gunluk", bugun(), { ilk: 100 });
   assert.equal(t.satirlar.find((x) => x.ben)?.ad, null); // "Oyuncu" olarak görünür
+  assert.deepEqual(await hedef.h.adDegistir(hedef.ad), { durum: "uygunsuz" }); // sıfırlanan ad engelli listede
   assert.equal((await hedef.h.adDegistir(`Yeni${Math.floor(Math.random() * 1e6)}`)).durum, "ok"); // 30 gün sınırı sıfırlandı
 });
 
@@ -66,8 +67,7 @@ test("devir: misafirken alınan şikâyetler kalıcı hesaba taşınır", async 
   const c = istemci();
   const h = hesapBaslat({ supabase: c, oyunId: "deneme", depo: bellekDepo() });
   const anonId = await h.anonimGir();
-  const ad = `Misafir${Math.floor(Math.random() * 1e6)}`;
-  await h.adDegistir(ad);
+  const ad = ((await h.otomatikAd()) as { ad: string }).ad;
   await (await kalici()).h.sikayetEt(ad, "ad");
   await (await kalici()).h.sikayetEt(ad, "hile");
   const k = await kaliciKullanici();
