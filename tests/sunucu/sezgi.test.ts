@@ -98,6 +98,28 @@ test("BG-1: gün toplamı birikir, hafta 7 gün toplanır; istemci yazamaz; kapa
   assert.ok(od.every((r) => r.odul === `sira:lig-1-${hafta}`));
 });
 
+test("BG-2: İlerleme tablosu yalnız ücretsiz bölümleri (seviye < 4000) sayar; tam sürüm üstünlük vermez", async () => {
+  const oyun = `bg2_${Math.floor(Math.random() * 1e8)}`;
+  const yap = async (seviyeler: number[]) => {
+    const o = await oyuncu();
+    await o.sezgi().from("profiles").insert({ id: o.id, username: `ilr_${Math.floor(Math.random() * 1e8)}` });
+    for (const [i, level] of seviyeler.entries())
+      await sql`insert into sezgi.level_verified (user_id, game, level, raw_stars, value, verified_at)
+                values (${o.id}, ${oyun}, ${level}, 3, 1, now() - make_interval(secs => ${100 - i}))`;
+    return o.id;
+  };
+  const ucretsiz = await yap([0, 1, 2001]);          // 9 ücretsiz yıldız
+  const tam = await yap([0, 1, 4000, 5000, 7000]);  // 6 ücretsiz + 9 ücretli yıldız
+  const satir = async (id: string, game: string) =>
+    (await sql`select stars, master3, rank::int from sezgi.board_levels where user_id = ${id} and game = ${game}`)[0];
+  assert.deepEqual(await satir(tam, oyun), { stars: 6, master3: 0, rank: 2 });
+  assert.deepEqual(await satir(ucretsiz, oyun), { stars: 9, master3: 0, rank: 1 });
+  assert.equal((await satir(tam, "all"))!.stars, 6);
+  // Yalnız ücretli bölümde yıldızı olan oyuncu tabloda görünmez
+  const yalnizTam = await yap([4001]);
+  assert.equal(await satir(yalnizTam, oyun), undefined);
+});
+
 test("ortak silme yolu: bu oyundan sil sezgi profilini siler; lig kurucusu önce devretmeli", async () => {
   const a = await oyuncu();
   await a.h.ben(); // ortak.oyuncular('sezgi') satırı
