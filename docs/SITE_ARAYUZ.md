@@ -2,7 +2,7 @@
 
 Yayın: Cloudflare Pages projesi `asyworks`. Bu deponun `site/` klasörü yayınlanır, derleme adımı yoktur. `main`'e her push siteyi günceller. Adresler: asyworks.com ve www.asyworks.com. Alan adı Search Console'da doğrulandı; DNS'teki `google-site-verification` TXT kaydı silinmez. Google giriş onay ekranı "ASYWorks" adıyla doğrulanmış ve yayında (2026-11-14).
 
-Stüdyo sitesinin (`site/`) tek doğruluk kaynağı bu belge ve `site/ana.css`'tir. Oyunların arayüz belgeleriyle (ör. Beat Greedy `docs/ARAYUZ.md`) aynı düzende yazıldı. Gizlilik ve hesap silme sayfaları (`site/stil.css`) aynı renk ve yazıyı kullanır, ama düz metin sayfasıdır.
+ASYWorks sitesinin (`site/`) tek doğruluk kaynağı bu belge ve `site/ana.css`'tir. Oyunların arayüz belgeleriyle (ör. Beat Greedy `docs/ARAYUZ.md`) aynı düzende yazıldı. Gizlilik ve hesap silme sayfaları (`site/stil.css`) aynı renk ve yazıyı kullanır, aynı tek ekran kabuğundadır (§4.1).
 
 ## 1. Sanat yönü
 
@@ -69,7 +69,8 @@ Satır uzunluğu en çok 60 karakter.
 
 ### 4.1 Tek ekran (14 Kasım 2026)
 
-- Kök `100dvh`, gövde `overflow: hidden`. Bölümler sekmedir: Ana sayfa, Oyunlar, Stüdyo, İletişim. Sekmeler geniş ekranda üst çubukta, 700 px altında altta.
+- Kök `100dvh`, gövde `overflow: hidden`. Bölümler sekmedir: Ana sayfa, Oyunlar, Hakkında, İletişim. Sekmeler geniş ekranda üst çubukta, 700 px altında altta.
+- Metin dili: ASYWorks bir stüdyo değil, tek kişinin oyunlarının adı. Birinci tekil şahıs ("yapıyorum", "I make"); "stüdyo" denmez. Metinler Fable 5.2 ile sadeleştirildi (14 Kasım 2026).
 - Sekme ve oyun seçimi yalnız CSS ile (`:target` + `:has`); JavaScript gerekmez, geri tuşu ve doğrudan bağlantı (`/#halka-kelime`) çalışır.
 - Oyunlar tek tek, kendi renginde bir pencerede gösterilir. Pencere geniş ekranda iki sütun (metin, telefon), dikeyde bilgi solda telefon sağda; kısa dikey pencerede (560 px altı) başlık ve açıklama aynı satırda.
 - Telefon çerçevesi ve kehribar raf SVG'dir: kalan yüksekliğe sığar, oranı bozulmaz. Yazı basamakları bölüm kutusunun boyuna göre ölçeklenir (`cqw`/`cqh`).
