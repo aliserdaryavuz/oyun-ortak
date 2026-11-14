@@ -33,18 +33,10 @@ test("bu oyundan sil: hk_entitlements temizlenir, hesap ve öbür oyunlar kalır
   assert.deepEqual({ ...r }, { n: 0, deneme: 1, hesap: 1 });
 });
 
-test("HK-17: eski hk_ nesneleri yok; hatırlatma aboneliği anon role ve misafire kapalı", async () => {
+test("HK-17: eski hk_ nesneleri yok; Web Push kaldırıldı (hk_push ve hk_push_* yok)", async () => {
   const [r] = await sql`select to_regclass('public.hk_profiles') as p, to_regclass('public.hk_daily_scores') as s, to_regclass('public.hk_push') as push`;
-  assert.deepEqual([r!.p, r!.s, r!.push], [null, null, "hk_push"]);
-  const ep = "https://fcm.googleapis.com/fcm/send/hk17-" + crypto.randomUUID();
-  const arg = { p_endpoint: ep, p_p256dh: "B".repeat(87), p_auth: "a".repeat(22), p_hour: 9 };
-  assert.match((await istemci().rpc("hk_push_save", arg)).error?.message ?? "", /permission denied/);
-  const m = istemci();
-  await hesapBaslat({ supabase: m, oyunId: "halka", depo: bellekDepo() }).anonimGir();
-  assert.match((await m.rpc("hk_push_save", arg)).error?.message ?? "", /kalici_hesap_gerekli/);
-  const k = await kaliciKullanici();
-  const c = istemci();
-  await c.auth.signInWithPassword({ email: k.eposta, password: k.parola });
-  assert.equal((await c.rpc("hk_push_save", arg)).error, null);
-  assert.equal((await c.rpc("hk_push_remove", { p_endpoint: ep })).error, null);
+  assert.deepEqual([r!.p, r!.s, r!.push], [null, null, null]);
+  const [f] = await sql`select count(*)::int as n from pg_proc p join pg_namespace n on n.oid = p.pronamespace
+                        where n.nspname = 'public' and p.proname like 'hk_push%'`;
+  assert.equal(f!.n, 0);
 });
