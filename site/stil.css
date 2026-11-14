@@ -24,9 +24,11 @@ body.belge::before { content: ""; grid-area: 1 / 1 / 2 / -1; background: var(--t
 .logo img { display: block; height: 36px; width: auto; }
 .diller { grid-area: dil; align-self: center; justify-self: end; display: flex; gap: 4px; margin-right: max(var(--kenar), env(safe-area-inset-right)); }
 .diller a, .bolumler a { display: flex; align-items: center; min-height: 44px; padding: 0 14px; border-radius: 10px; text-decoration: none; font-weight: 600; }
-.diller a { color: var(--soluk-koyu); font-size: 15px; }
-.diller a:hover { color: var(--kagit); }
-.diller a[aria-current] { color: var(--kagit); background: var(--kabarik); box-shadow: inset 0 -3px 0 var(--kehribar); }
+/* Ana sayfadaki gibi yalnız geçilecek dil görünür: Türkçe bölümdeyken English, İngilizcedeyken Türkçe */
+.diller a { color: var(--kagit); font-size: 15px; padding: 0 14px; border: 1.5px solid var(--kabarik); }
+.diller a:hover { border-color: var(--kehribar); }
+.diller .d-tr, body:has(.dil.en :target, .dil.en:target) .diller .d-en { display: none; }
+body:has(.dil.en :target, .dil.en:target) .diller .d-tr { display: flex; }
 
 main { grid-area: ana; min-height: 0; overflow: clip; }
 .dil { display: none; height: 100%; grid-template-columns: 230px minmax(0, 780px); grid-template-rows: minmax(0, 1fr); justify-content: center;
