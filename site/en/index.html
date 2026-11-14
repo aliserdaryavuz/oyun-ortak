@@ -152,5 +152,6 @@
     <polygon id="tel-kama" points="36,856 484,856 520,900 0,900" fill="#f2b544"/>
   </defs>
 </svg>
+<script>/* Dil değişince aynı sekmede kalınır */const d=document.querySelector("a.dil"),k={ana:"home",oyunlar:"games",hakkinda:"about",iletisim:"contact",home:"ana",games:"oyunlar",about:"hakkinda",contact:"iletisim"};d.addEventListener("click",()=>{const h=location.hash.slice(1);if(h)d.hash=k[h]||h;});</script>
 </body>
 </html>

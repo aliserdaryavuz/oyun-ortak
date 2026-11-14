@@ -23,7 +23,7 @@
       <a class="dis" href="/gizlilik/">Gizlilik</a>
     </nav>
     <div class="panel">
-      <section class="bolum" id="ne">
+      <section class="bolum" id="ne" data-karsi="en-delete">
         <h1>Hesap ve veri silme</h1>
         <p>Halka Kelime, Sticky Ten, Beat Greedy ve bu sayfaya bağlantı veren diğer oyunlarda tek hesap kullanılır. Burada isterseniz <strong>yalnız bir oyundaki verinizi</strong>, isterseniz <strong>bütün hesabınızı</strong> silebilirsiniz. Aynı işlemi oyunun içindeki "Hesabı sil" seçeneğiyle de yapabilirsiniz.</p>
         <div>
@@ -38,7 +38,7 @@
 
         <p><a class="dugme-bag" href="#sil">Silmeye geç</a></p>
       </section>
-      <section class="bolum" id="sil">
+      <section class="bolum" id="sil" data-karsi="en-delete">
         <div class="kart" id="giris">
     <h2 style="margin-top:0">1. Giriş yapın</h2>
     <p>Oyunda hangi yolla girdiyseniz onu kullanın.</p>
@@ -69,7 +69,7 @@
       <a class="dis" href="/gizlilik/#en">Privacy</a>
     </nav>
     <div class="panel">
-      <section class="bolum" id="en-delete">
+      <section class="bolum" id="en-delete" data-karsi="ne">
         <h1>Delete your account</h1>
         <p>Halka Kelime, Sticky Ten, Beat Greedy and other linked games share one account. On this page you can delete <strong>your data in one game</strong> or <strong>your whole account</strong>. Deleting one game's data removes your nickname, progress, scores, leagues, rewards and purchase record in that game; your account and other games remain. Deleting your whole account removes all data in all games, including your email or Google/Apple link. This cannot be undone. To confirm, type <strong>DELETE</strong> in the confirmation box. Sign in on the <a href="#sil">Delete</a> tab with the method you used in the game, then choose. Deletion is immediate; backups are cleared shortly after. Store purchase records stay with Google Play / the App Store and can be restored with "Restore purchases". If you played as a guest without linking an account, use "Delete account" inside the game. Unused guest data is deleted automatically after 90 days. Questions: <a href="mailto:support@asyworks.com">support@asyworks.com</a></p>
   
@@ -204,6 +204,6 @@
     $("islem").replaceChildren(Object.assign(document.createElement("p"), { textContent: "Hesabınız ve bütün verileriniz silindi." }));
   });
 </script>
-<script src="/sekme.js?v=fd5b91a4"></script>
+<script src="/sekme.js?v=b1cc76ea"></script>
 </body>
 </html>
