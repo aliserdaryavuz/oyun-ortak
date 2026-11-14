@@ -70,7 +70,7 @@ Satır uzunluğu en çok 60 karakter.
 ### 4.1 Tek ekran (14 Kasım 2026)
 
 - Kök `100dvh`, gövde `overflow: hidden`. Bölümler sekmedir: Ana sayfa, Oyunlar, Hakkında, İletişim. Sekmeler geniş ekranda üst çubukta, 700 px altında altta.
-- Metin dili: ASYWorks bir stüdyo değil, tek kişinin oyunlarının adı. Birinci tekil şahıs ("yapıyorum", "I make"); "stüdyo" denmez. Metinler Fable 5.2 ile sadeleştirildi (14 Kasım 2026).
+- Metin dili: ASYWorks bir stüdyo değil, oyunların yayımlandığı ad. "Stüdyo" ve "tek başıma" denmez; marka üçüncü şahısla anılır ("ASYWorks … yapar"). "Kısa oyun" gibi küçümseyen ifadeler kullanılmaz. Metinler Fable 5.2 ile sadeleştirildi (14 Kasım 2026).
 - Sekme ve oyun seçimi yalnız CSS ile (`:target` + `:has`); JavaScript gerekmez, geri tuşu ve doğrudan bağlantı (`/#halka-kelime`) çalışır.
 - Oyunlar tek tek, kendi renginde bir pencerede gösterilir. Pencere geniş ekranda iki sütun (metin, telefon), dikeyde bilgi solda telefon sağda; kısa dikey pencerede (560 px altı) başlık ve açıklama aynı satırda.
 - Telefon çerçevesi ve kehribar raf SVG'dir: kalan yüksekliğe sığar, oranı bozulmaz. Yazı basamakları bölüm kutusunun boyuna göre ölçeklenir (`cqw`/`cqh`).
