@@ -113,3 +113,27 @@ Bağlam: Saha Araştırması ve Ticaret Ağı plan paketleri hazırlanırken gö
 - **AK-1 uygulandı:** `_ortak/ARAYUZ_KURALLARI.md`. Tablo 20 oyunun `docs/ARAYUZ.md`'sinden çıkarıldı (halka-kelime-android Halka'nın kopyası). Yasaklı yazı tipleri ayrı liste değil, tablodan türetiliyor; eski yönlerden kalan Source Serif 4, IBM Plex Sans, Rubik ve Public Sans ayrıca yazıldı. Ekran kuralları `OYUN_DENETIMI.md` A4–A10'a bağlantı. Taramada görülen yakınlıklar dosyada bilgi notu olarak duruyor: İfade Katı ile Mahalle Dönüşümü (gri mukavva maket) ve ana yazı tipini paylaşan sekiz oyun çifti. Nakliye Etiketi, İp ve Düğüm, Kareli Deney Defteri hiçbir belgede tanımlı değil; kullanılmış sayıldı.
 - **AK-2 uygulandı:** `_ortak/OYUN_DENETIMI.md` bölüm 1 kaynak satırı ve madde A13.
 - **AK-3 uygulandı (6/6):** `docs/plan/00-ortak-altyapi.md` dosyalarına "yerini ORTAK_MODUL aldı" notu eklendi: çarpan-provası 0a857d4, desen-eşleme c43a661, ifade-katı 2e7a441, köy-meclisi cc12994, soy-defteri d1f4445. `genel-cerceve.md` yerelde yalnız mahalle-dönüşümü'nde etkin (kapı-ustası'ndaki iki kopya arşivde). O dosya Windows'ta salt okunur işaretliydi (devir paketi); Serdar'ın onayıyla kilit kaldırıldı ve not eklendi (mahalle-dönüşümü 41a7152). Tek "ön çalışma çerçevesi"ni `_ortak`'a taşıma ayrı iş olarak bırakıldı.
+
+## Yeni oyun iş akışı (AK-4, 2026-11-14) — uygulandı
+
+Serdar'ın isteği ve onayıyla. Kod deposuna ve `@oyun/ortak` paketine girmez; hepsi `C:\Projeler\oyunlar\_ortak\` altında. İlke: ortak olan süreç ve altyapıdır; her oyunun motoru, içeriği ve sanat yönü kendine özgü kalır.
+
+| # | Paket | İstek | Durum |
+|---|---|---|---|
+| AK-4 | belge (`_ortak`) | Yeni oyunlar için iş akışı ve ön çalışma şablonları | **Uygulandı (2026-11-14, oyun-ortak oturumu)** |
+
+- `_ortak/YENI_OYUN.md`: tek sayfa iş akışı: fikir ve eleme → plan → sohbette ön çalışma (Adım 1–9) → devir zip'i (`_devir/`) → Claude Code Aşama 0–4. Her adımda üretilen dosyalar, onay durakları ve geçiş koşulu yazılı. Şablon eşitleme kuralı da burada.
+- `_ortak/sablon-on-calisma/`:
+  - `00-ortak-cerceve.md`: oyundan bağımsız çerçeve. Saha Araştırması ve Ticaret Ağı paketlerindeki aynı dosyadan çıkarıldı.
+    - Oyuna özgü kısımlar atıldı: ağ istisnası, oyun kimlikleri, portföy notu.
+    - Eklenenler: yerel derleme / Actions yok, yayın öncesi noindex, ASYWorks ve metin dili.
+    - Arayüz bölümü kuralları tekrar etmiyor, `ARAYUZ_KURALLARI.md`'ye bağlı.
+    - Paket sürümü sabit değil; denetim tablosuna A13 eklendi; başında "son eşitleme" satırı var.
+  - `OTURUM_GOREVI.md`: Adım 1–9 şablonu, oyuna özgü yerler `<…>` ile.
+  - `PLAN_SABLONU.md`: oyun planı başlık iskeleti (§0–18 + Ertelenenler).
+  - `CLAUDE.md` ve `DENETIM.md` iskeletleri.
+- Eşitleme kuralı:
+  - `ORTAK_MODUL.md`, `PAZAR_OLCUTLERI.md`, `OYUN_DENETIMI.md` ve `ARAYUZ_KURALLARI.md`'nin başına "bu dosya değişince şablonlar da aynı gün güncellenir" satırı eklendi.
+  - `ORTAK_MODUL.md` "Kural" bölümü `YENI_OYUN.md`'ye bağlandı.
+- Not: Saha Araştırması ve Ticaret Ağı'ndaki eski kopyalar kendiliğinden güncellenmez; ön çalışmaya başlamadan çerçeve şablondan yeniden kopyalanmalı.
+
