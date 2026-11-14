@@ -143,7 +143,7 @@ main:has(.pano:not(.ana):target, .oyun:target) .pano.ana { display: none; }
 @container (orientation: portrait) and (max-height: 560px) {
   .oyun dl { display: block; }
   .oyun dt { display: inline; margin: 0; }
-  .oyun dt::after { content: ": a0"; }
+  .oyun dt::after { content: ":"; margin-right: .35em; }
   .oyun dd { display: inline; }
   .oyun dd::after { content: ""; display: block; margin-bottom: .45em; }
   .oyun h2 { margin-bottom: .3em; }
