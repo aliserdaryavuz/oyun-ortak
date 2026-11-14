@@ -4,14 +4,14 @@ import { after, test } from "node:test";
 import assert from "node:assert/strict";
 import { bellekDepo } from "../../src/kayit/index.ts";
 import { hesapBaslat } from "../../src/hesap/index.ts";
-import { istemci, sql } from "./yardimci.ts";
+import { istemci, kaliciGir, sql } from "./yardimci.ts";
 
 after(() => sql.end());
 
 const oyuncu = async () => {
   const c = istemci();
   const h = hesapBaslat({ supabase: c, oyunId: "sezgi", depo: bellekDepo() });
-  const id = await h.anonimGir();
+  const id = await kaliciGir(h); // Beat Greedy profili kalıcı hesap ister
   return { c, h, id, sezgi: () => c.schema("sezgi") };
 };
 
@@ -24,6 +24,10 @@ test("sezgi şeması API'de: profil kendi satırını yazar, başkası okuyabili
   assert.deepEqual(data, [{ username: ad }]);
   assert.ok((await b.sezgi().from("profiles").insert({ id: a.id, username: "baska_ad" })).error);
   assert.ok((await b.sezgi().from("profiles").insert({ id: b.id, username: "sik" })).error, "küfür süzgeci");
+  // misafir (anonim) profil yazamaz
+  const m = istemci();
+  const mid = await hesapBaslat({ supabase: m, oyunId: "sezgi", depo: bellekDepo() }).anonimGir();
+  assert.match((await m.schema("sezgi").from("profiles").insert({ id: mid, username: `misafir_${Math.floor(Math.random() * 1e6)}` })).error?.message ?? "", /kalici_hesap_gerekli/);
 });
 
 test("zamanlanmış işlerin çağırdığı fonksiyonlar sezgi şemasında çalışır", async () => {
@@ -71,7 +75,7 @@ test("BG-1: şikâyetle sıfırlanan ad Beat Greedy profilinde de değişir ve y
   assert.equal((await sql`select ad from ortak.oyuncular where oyun_id = 'sezgi' and kullanici_id = ${hedef.id}`)[0]!.ad, null);
   // aynı ad ne Beat Greedy'den ne ortak yoldan yeniden alınabilir; başka bir ad hemen alınabilir
   assert.match((await hedef.sezgi().from("profiles").update({ username: ad }).eq("id", hedef.id)).error?.message ?? "", /ad_uygunsuz/);
-  await assert.rejects(hedef.h.adDegistir(ad), /kalici_hesap_gerekli/); // ortak yol misafire kapalı; engelli liste ad_denetimi testlerinde
+  assert.deepEqual(await hedef.h.adDegistir(ad), { durum: "uygunsuz" });
   assert.equal((await hedef.sezgi().from("profiles").update({ username: `temiz_${Math.floor(Math.random() * 1e6)}` }).eq("id", hedef.id)).error, null);
 });
 
