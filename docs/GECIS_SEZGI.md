@@ -29,7 +29,7 @@ Okuyucu: sezgi deposunda çalışan oturum ve Serdar. Tarih: 13 Kasım 2026.
    - "Bu oyundaki verimi sil": istemciden `ortak.oyun_verisini_sil('sezgi')`. Bu çağrı `sezgi.oyuncu_verisini_sil`'i çalıştırır; lig kurucusuysa `owns_leagues` hatası verir (K50 korunur).
    - "Hesabımı tamamen sil": `ortak.hesabi_sil()` (önce `ortak.hesap_ozeti()` ile oyunları listele).
    - `delete_account` fonksiyonu kaldırılabilir.
-5. **Giriş:** proje genelinde e-posta kodu (Türkçe şablon, `giris@halkakelime.com`), Google ve anonim oturum açık. Beat Greedy şimdilik yalnız e-posta kodunu kullanıyor; Google düğmesi `@oyun/ortak/hesap` ile eklenebilir.
+5. **Giriş:** proje genelinde e-posta kodu (Türkçe ASYWorks şablonu, `giris@asyworks.com`), Google ve anonim oturum açık. Beat Greedy şimdilik yalnız e-posta kodunu kullanıyor; Google düğmesi `@oyun/ortak/hesap` ile eklenebilir.
 6. **Testler:** `tools/servertest` yerel Supabase'e karşı koşuyor. Şema artık oyun-ortak'ta olduğu için yerel yığın oyun-ortak klasöründen başlatılır (`npm run db:start`, adres `http://127.0.0.1:55321`); sezgi'nin fonksiyonları oraya `supabase functions serve` ile ya da `oyun-test`'e karşı denenir.
 7. **Günlük içerik üretimi:** `DAILY_SEED_SECRET` ile üretilen yeni günler `sezgi.daily_puzzles` / `sezgi.daily_solutions` tablolarına servis anahtarıyla yazılır. Hedef şema `sezgi` olmalı.
 

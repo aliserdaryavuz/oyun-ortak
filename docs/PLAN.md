@@ -11,10 +11,10 @@ Kaynaklar: `_ortak/ORTAK_MODUL.md`, `_ortak/PAZAR_OLCUTLERI.md`, `_ortak/SUPABAS
 | Bölge | **Frankfurt (eu-central-1)** |
 | Supabase projeleri (12 Kasım, uygulandı) | `oyun-canli` = `qzxchutjzhyzzaoxzroh`, `oyun-test` = `vbygbyurswjjmiqrhvmo`, ikisi de Frankfurt. beat-greedy, arac-karnesi ve eczane-panosu projeleri verileri `_ortak/arsiv/` altına aktarılıp silindi (Serdar'ın onayıyla). Araç Defterim uygulamasının arka ucu artık yok. |
 | Halka | Bugünkü şeması `oyun-canli`'da (`20261113000200_halka_baslangic.sql`, `public`, `hk_` adları); bulmacalar ve ölçüm köprüsü arşivden yüklendi. 1 Aralık'ta doğrudan `oyun-canli`'da çıkar; sonradan kullanıcı taşıma gerekmez. |
-| Giriş ve e-posta (12 Kasım, uygulandı) | Google sağlayıcısı iki projede açık (Web istemcisi; Android istemcisi Play derlemesiyle eklenecek). E-posta kodu Resend SMTP ile; geçici gönderen `giris@halkakelime.com`, ortak alan adı alınınca değişir. Apple ilk iOS sürümüne yakın. Gizli değerler `C:\Users\alise\.oyun-ortak\` altında, depoda yok. |
+| Giriş ve e-posta (12 Kasım, uygulandı) | Google sağlayıcısı iki projede açık (Web istemcisi; Android istemcisi Play derlemesiyle eklenecek). E-posta kodu Resend SMTP ile; gönderen `ASYWorks <giris@asyworks.com>` (14 Kasım). Resend anahtarı yalnız asyworks.com'dan gönderir. Apple ilk iOS sürümüne yakın. Gizli değerler `C:\Users\alise\.oyun-ortak\` altında, depoda yok. |
 | Ölçüm (12 Kasım, uygulandı) | PostHog AB bulutu, tek proje; proje anahtarı `docs/ENTEGRASYON.md`'de. |
 | Testler | Her gönderimde GitHub Actions'ta yerel Supabase kopyasıyla; `oyun-test` bulutta önizleme ve elle deneme için. |
-| E-posta alan adı | **Nötr ortak stüdyo alan adı alınacak** (Cloudflare Registrar, yılda ~10–15 $). Ad Serdar'dan bekleniyor. Alınana kadar Halka'nın `halkakelime.com` Resend ayarı geçici gönderen olur. Aynı alan adı gizlilik/KVKK, hesap silme ve etkinlik takvimi sayfalarını taşır; Google onay ekranındaki ad da stüdyo adına çevrilir. |
+| E-posta alan adı | **asyworks.com** (ASYWorks, 14 Kasım). Resend'de doğrulandı (İrlanda). Ortak giriş kodu ve Sticky Ten'in sunucusu buradan gönderir. Gizlilik/KVKK ve hesap silme asyworks.com'da; Google onay ekranı "ASYWorks" adıyla doğrulandı. |
 | Oyun adresleri (12 Kasım) | Daha önce alınmış oyun alan adları (ör. `halkakelime.com`) olduğu gibi kullanılır. Kendi alan adı olmayan oyunlar ortak stüdyo alan adının **alt alan adına** bağlanır (`<oyun>.<stüdyo>`, Cloudflare Pages, ücretsiz). Yol biçimi (`<stüdyo>/<oyun>`) kullanılmaz: aynı kökende kayıt ve oturumlar karışır. Her oyun adresi Google istemcisinin JavaScript origins listesine ve `config.toml` dönüş adreslerine eklenir. |
 | Misafir | **Supabase anonim oturumu, ilk çevrimiçi işte** (ilk skor gönderimi vb.) açılır. Google/Apple/e-posta bağlanınca aynı kullanıcı kimliği kalır. Bağlanmamış anonim hesaplar 90 gün hareketsizlikte silinir. |
 | Takma ad | **Oyun başına.** Benzersizlik ve 30 günlük değiştirme sınırı oyun içinde. |
@@ -309,7 +309,7 @@ Kalan, bu depoda:
 Kalan, Serdar'da:
 - Google onay ekranını "In production"a almak (Halka'nın 1 Aralık yayınından önce).
 - RevenueCat hesabı (Play Console aktifleşince); webhook'a `.oyun-ortak/odeme-webhook.env` değeri girilir.
-- Ortak stüdyo alan adı (gönderen adres, onay ekranı, ortak sayfalar).
+- ~~Ortak stüdyo alan adı (gönderen adres, onay ekranı, ortak sayfalar).~~ asyworks.com, 14 Kasım.
 - Apple Developer (Apple ile giriş, iOS).
 
 Bilgi: Araç Defterim uygulamasının arka ucu yok (proje silindi; veri `_ortak/arsiv/arac-karnesi-2026-11-12`).
