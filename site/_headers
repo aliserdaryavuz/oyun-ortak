@@ -1,0 +1,6 @@
+# Cloudflare Pages yanıt başlıkları.
+# no-transform: Cloudflare Web Analytics betiği ve e-posta gizleme sayfaya eklenmez (ölçüm yok, gizlilik metniyle uyumlu).
+/*
+  Cache-Control: public, max-age=0, must-revalidate, no-transform
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
