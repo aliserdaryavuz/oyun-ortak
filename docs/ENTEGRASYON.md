@@ -286,7 +286,7 @@ Alanların anlamı:
 Bu depo:
 - `npm test`: istemci, sunucusuz.
 - `npm run test:sunucu`: yerel Supabase'e karşı.
-- GitHub Actions ikisini de her gönderimde çalıştırır.
+- İkisi de yerelde, gönderimden önce koşulur. Oyun depolarında GitHub Actions kullanılmaz (2026-11-14 kararı; gizli depolarda dakika kotası var). Yalnız açık oyun-ortak deposunun `test.yml`'i kalır.
 
 Yeni bir RPC eklendiğinde `tests/sunucu/yetki.test.ts` içindeki izin listesine bilerek eklenir.
 

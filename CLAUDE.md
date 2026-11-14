@@ -23,4 +23,5 @@ Serdar'ın bütün mobil oyunlarının ortak kütüphanesi ve ortak arka ucu (he
 - Supabase: `oyun-canli` + `oyun-test`; göçler yalnız bu depoda.
 - Google ve Apple ile giriş her oyunda zorunlu ve öne çıkarılır; e-posta kodu yedek.
 - PostHog ücretsiz, kart yok; kota dolarsa ölçüm sessizce durur.
+- Derleme ve testler yerelde; GitHub Actions kullanılmaz (gizli depolarda dakika kotası, ödeme yöntemi yok). iOS derlemesi Codemagic ücretsiz katmanında. Tek istisna bu deponun `test.yml`'i: depo açık, dakikası sayılmaz.
 - `docs/ENTEGRASYON.md`: oyunların pakete geçiş kuralları (envanter → eşleme → `src/altyapi/` → eski altyapıyı kaldırma).
