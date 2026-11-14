@@ -8,6 +8,7 @@
  */
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Depo } from "../kayit/index.ts";
+export * from "./dugmeler.ts";
 
 export type Saglayici = "google" | "apple";
 

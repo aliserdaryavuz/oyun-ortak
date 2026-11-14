@@ -126,6 +126,14 @@ Bu düğmeler oyunun paletine boyanmaz ve logoları değiştirilmez. Kurallara u
 - Apple logosu ve "Apple ile devam et" ya da "Continue with Apple" metni kullanılır. iOS'ta sistemin `ASAuthorizationAppleIDButton` düğmesi tercih edilir.
 - Düğme Google düğmesiyle aynı boyda olur ve ondan daha az öne çıkarılmaz. App Store 4.8 kuralı gereği, iOS'ta Google girişi sunan oyun Apple girişini de sunar.
 
+#### Giriş ekranı: ortak düzen (zorunlu, giriş isteyen her oyunda; 14 Kasım 2026)
+
+- **Misafir başlar.** Oyuncu giriş yapmadan oynar; sunucuya ilk iş gerektiğinde anonim oturum açılır (`hesap.anonimGir`). Giriş, oyuncu bir hesap özelliğine (sıralamada ad, cihazlar arası kayıt, lig) dokununca ya da ödülle önerilir; zorunlu kayıt yok.
+- **Seçenekler ve sıra ortak:** `girisSecenekleri({ platform, apple })` (`@oyun/ortak/hesap`). iOS'ta Apple ve Google aynı boyda öne çıkar; Android ve webde Google öne çıkar (Apple istenirse eklenir); e-posta kodu altta ve daha sade bir yedektir; en altta "Misafir olarak devam et".
+- **Değerler ortak:** düğme renkleri, ölçüleri, logoları ve metinleri `GIRIS_RENKLERI`, `GIRIS_OLCULERI`, `GOOGLE_G_SVG`, `APPLE_LOGO_SVG`, `GIRIS_METINLERI`'nden alınır; oyun düğmeyi kendi çatısında (web, React Native) çizer ama logo ve renkleri yeniden yazmaz. Webde Google'ın kendi düğmesi (`googleDugmesi`) de kullanılabilir.
+- **Akış ortak:** `idTokenIleGir` / `webIleGir` (Google, Apple), `epostaKoduGonder` + `epostaKoduIleGir`; misafir ilerlemesi her yolda devir koduyla hesaba taşınır. Oyun giriş akışını kendisi yeniden yazmaz.
+- Ekranın yerleşimi ve çevresi (başlık, açıklama, arka plan) oyunun sanat yönüne aittir; düğmeler değil.
+
 ## v0.2 paketleri
 
 ### Ödeme (`@oyun/ortak/odeme`)
@@ -235,7 +243,8 @@ const oyuncu = await dogrula(jeton);
 - **Kurulum:** `bildirimBaslat({ yerel, depo })`. `yerel`, oyunun yerel bildirim eklentisini (ör. `@capacitor/local-notifications`) saran üç işlev: `izinIste`, `planla`, `iptal`.
 - **Açıp kapatma:** `ayarla({ acik, saat, dakika, baslik, metin })`. Açarken izin ister.
 - **Günlük akış:** günün oyunu bitince `oynandi()` bugünkü hatırlatmayı atlar. Açılışta `yenile()` 7 günlük pencereyi kaydırır.
-- **Sunucu push (FCM/APNs):** Firebase projesi açılınca eklenecek.
+- **Haftalık ek bildirim (v0.5.0):** `ekPlanla([{ zaman, baslik, metin, oynananGundeAtla? }])` yaklaşan olayları verir (turnuva açıldı, lig sonucu); her İstanbul haftasından en erkeni, en çok 4 hafta kurulur. Ayrı anahtar: `ekAyarla(acik)` (açarken izin ister), `ekAcik()`. Kimlikler `ekKimlikTabani` (varsayılan 7200–7203). `oynandi()` ve `yenile()` ek bildirimleri de yeniden kurar. Ortak kural: günde en çok bir hatırlatma + haftada en çok bir ek bildirim; oyunun kuralları `docs/BILDIRIM.md`.
+- **Sunucu push (FCM/APNs):** cihaz anahtarları `ortak.bildirim_anahtarlari`'nda (ST-8: `bildirim_anahtari_yaz`, `bildirim_anahtari_sil`; sunucu servis rolüyle okur). Gönderim için Firebase projesi gerekir.
 
 ## Sunucu kuralları (oyun şeması göçleri için)
 

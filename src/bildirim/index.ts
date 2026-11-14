@@ -6,10 +6,13 @@
  * Uygulama her açıldığında `yenile` çağrılır; böylece pencere hep 7 gün ileri kayar.
  *
  * Yerel bildirim eklentisi (ör. @capacitor/local-notifications) oyunun bağımlılığıdır; oyun onu `YerelBildirim`e sarar.
+ * Haftalık ek bildirim (ortak kural: günde en çok bir hatırlatma + haftada en çok bir ek bildirim): oyun yaklaşan
+ * olayları (turnuva açıldı, lig sonucu) `ekPlanla` ile verir; her İstanbul haftasından (pazartesi–pazar) en erken olay
+ * seçilir, en çok 4 hafta ileri kurulur. Ayrı anahtarla açılır (`ekAyarla`), varsayılan kapalı.
  * Sunucudan push (FCM/APNs) Firebase projesi açılınca eklenecek.
  */
 import type { Depo } from "../kayit/index.ts";
-import { istanbulGunu } from "../siralama/zaman.ts";
+import { istanbulGunu, isoHafta } from "../siralama/zaman.ts";
 
 export interface YerelBildirim {
   izinIste(): Promise<boolean>;
@@ -26,16 +29,41 @@ export interface HatirlatmaAyari {
   metin: string;
 }
 
+/** Haftalık ek bildirim adayı. */
+export interface EkBildirim {
+  zaman: Date;
+  baslik: string;
+  metin: string;
+  /** true: o gün oyun oynandıysa bu bildirim de atlanır (ör. lig sonucu). Varsayılan false (duyuru). */
+  oynananGundeAtla?: boolean;
+}
+
 export interface BildirimAyari {
   yerel: YerelBildirim;
   depo: Depo;
   /** Bildirim kimliklerinin başlangıcı; oyunun başka bildirimleriyle çakışmasın (varsayılan 7100). */
   kimlikTabani?: number;
+  /** Haftalık ek bildirim kimliklerinin başlangıcı (varsayılan 7200; 4 kimlik). */
+  ekKimlikTabani?: number;
   simdi?: () => Date;
 }
 
 const GUN = 7;
+const HAFTA = 4;
 const KEY = "oyun-ortak:hatirlatma";
+
+/** Kurulacak haftalık ek bildirimler (saf; test edilir): gelecekteki adaylardan her haftanın en erkeni, en çok 4 hafta. */
+export function haftalikSecim(simdi: Date, liste: EkBildirim[], sonOynanan: string | null): EkBildirim[] {
+  const secilen = new Map<string, EkBildirim>();
+  for (const e of [...liste].sort((x, y) => x.zaman.getTime() - y.zaman.getTime())) {
+    if (e.zaman <= simdi) continue;
+    const gun = istanbulGunu(e.zaman);
+    if (e.oynananGundeAtla && gun === sonOynanan) continue;
+    const hafta = isoHafta(gun);
+    if (!secilen.has(hafta)) secilen.set(hafta, e);
+  }
+  return [...secilen.values()].slice(0, HAFTA);
+}
 
 /** Kurulacak hatırlatma zamanları (saf; test edilir). */
 export function hatirlatmaZamanlari(simdi: Date, saat: number, dakika: number, sonOynanan: string | null): Date[] {
@@ -56,8 +84,11 @@ export function hatirlatmaZamanlari(simdi: Date, saat: number, dakika: number, s
 export async function bildirimBaslat(a: BildirimAyari) {
   const taban = a.kimlikTabani ?? 7100;
   const simdi = a.simdi ?? (() => new Date());
+  const ekTaban = a.ekKimlikTabani ?? 7200;
   const idler = Array.from({ length: GUN + 1 }, (_, i) => taban + i);
-  type Durum = { ayar: HatirlatmaAyari | null; sonOynanan: string | null };
+  const ekIdler = Array.from({ length: HAFTA }, (_, i) => ekTaban + i);
+  type EkKayit = { zaman: string; baslik: string; metin: string; oynananGundeAtla?: boolean };
+  type Durum = { ayar: HatirlatmaAyari | null; sonOynanan: string | null; ekAcik?: boolean; ek?: EkKayit[] };
   let d: Durum;
   try {
     d = JSON.parse((await a.depo.oku(KEY)) ?? "null") ?? { ayar: null, sonOynanan: null };
@@ -72,6 +103,17 @@ export async function bildirimBaslat(a: BildirimAyari) {
     const zamanlar = hatirlatmaZamanlari(simdi(), d.ayar.saat, d.ayar.dakika, d.sonOynanan);
     await a.yerel.planla(zamanlar.map((zaman, i) => ({ id: taban + i, baslik: d.ayar!.baslik, metin: d.ayar!.metin, zaman })));
   }
+
+  async function ekKur(): Promise<void> {
+    await a.yerel.iptal(ekIdler).catch(() => {});
+    if (!d.ekAcik || !d.ek?.length) return;
+    const secim = haftalikSecim(simdi(), d.ek.map((e) => ({ ...e, zaman: new Date(e.zaman) })), d.sonOynanan);
+    if (secim.length) await a.yerel.planla(secim.map((e, i) => ({ id: ekTaban + i, baslik: e.baslik, metin: e.metin, zaman: e.zaman })));
+  }
+  const hepsiniKur = async () => {
+    await kur();
+    await ekKur();
+  };
 
   return {
     ayar: () => d.ayar,
@@ -88,13 +130,28 @@ export async function bildirimBaslat(a: BildirimAyari) {
       await kur();
       return true;
     },
+    ekAcik: () => d.ekAcik === true,
+    /** Haftalık ek bildirimi açar/kapatır. Açarken izin istenir; verilmezse false döner ve kapalı kalır. */
+    async ekAyarla(acik: boolean): Promise<boolean> {
+      const izin = !acik || (await a.yerel.izinIste());
+      d.ekAcik = acik && izin;
+      await yaz();
+      await ekKur();
+      return izin;
+    },
+    /** Yaklaşan haftalık olaylar (açılışta ve takvim değişince). Saklanır; `yenile` yeniden kurar. */
+    async ekPlanla(liste: EkBildirim[]): Promise<void> {
+      d.ek = liste.map((e) => ({ ...e, zaman: e.zaman.toISOString() }));
+      await yaz();
+      await ekKur();
+    },
     /** Günün oyunu oynandı: bugünkü hatırlatma atlanır. */
     async oynandi(): Promise<void> {
       d.sonOynanan = istanbulGunu(simdi());
       await yaz();
-      await kur();
+      await hepsiniKur();
     },
-    /** Uygulama açılışında: 7 günlük pencereyi ileri kaydırır. */
-    yenile: kur,
+    /** Uygulama açılışında: 7 günlük pencereyi ve haftalık ek bildirimleri ileri kaydırır. */
+    yenile: hepsiniKur,
   };
 }

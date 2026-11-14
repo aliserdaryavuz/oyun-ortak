@@ -2,6 +2,22 @@
 
 Her sürümde "Oyunlar ne yapmalı" bölümü vardır. Sürümleme semver; `0.x`'te küçük sürüm kırıcı olabilir.
 
+## v0.5.0 (14 Kasım 2026)
+
+- `bildirim`: haftalık ek bildirim: `ekPlanla`, `ekAyarla`, `ekAcik`, saf `haftalikSecim` (haftada en çok bir, en çok 4 hafta, isteğe bağlı oynanan günde atla).
+- `hesap`: ortak giriş ekranı değerleri: `girisSecenekleri({ platform, apple, misafir })`, `GIRIS_RENKLERI`, `GIRIS_OLCULERI`, `GIRIS_METINLERI`, `GOOGLE_G_SVG`, `APPLE_LOGO_SVG`.
+- Sunucu (göçler `20261120000300`…`20261120001000`):
+  - Misafir (anonim) oturum ad seçemez, bulut kaydı ve ödül yazamaz (`kalici_hesap_gerekli`); `otomatik_ad` açık. Ödül tavanı oyun başına kullanıcı başına 1000.
+  - Hesap devrinde ipucu sayısı düşmez (çoklu küme birleşimi).
+  - Sticky: `sticky.rating_uygula` (ST-6), `sticky.siralama(… p_kullanici)` (ST-7).
+  - Cihaz bildirim anahtarları `ortak.bildirim_anahtarlari` (ST-8).
+  - Halka: HK-17 temizlik, HK-19, HK-20, Web Push kaldırıldı; Beat Greedy profil adı misafire kapalı.
+
+### Oyunlar ne yapmalı
+- **Kırıcı:** misafirde `adDegistir`, `bulutKaydi().birlestir` ve ödül eşitlemesi artık hata verir ya da sessizce bekler; bunları yalnız kalıcı hesapta çağırın (misafir `otomatikAd` kullanır). Dört oyun bugün zaten böyle.
+- Giriş ekranını `girisSecenekleri` ve `GIRIS_*` değerleriyle hizalayın (`docs/ENTEGRASYON.md` "Giriş ekranı").
+- Haftalık bildirimi kendi kodunda kuran oyun `ekPlanla`/`ekAyarla`'ya geçebilir.
+
 ## v0.4.0 (13 Kasım 2026)
 
 - Yeni giriş: `@oyun/ortak/sunucu-node` (`jetonDogrulayici`, `servisIstemcisi`): kendi Node sunucusu olan oyunlar için Supabase jeton doğrulama ve servis rolüyle yazma (ST-4).
