@@ -106,6 +106,23 @@ test("devir: var olan hesaba denemeler taşınır; çakışanda erken başlangı
   assert.equal((await sql`select count(*)::int as n from ortak.denemeler where kullanici_id = ${anonId}`)[0]!.n, 0);
 });
 
+test("devir: ipucu sayısı düşmez (çoklu küme birleşimi; Halka ipucunu türüne göre sayar)", async () => {
+  const k = await kalici();
+  // Hedef bugün 5 kilit + 1 tema ipucu aldı; başka cihazdaki misafir aynı güne 1 kilit + 2 harf.
+  await sql`insert into ortak.denemeler (oyun_id, kullanici_id, anahtar, durum)
+            values ('deneme', ${k.id}, 'gunluk:2026-11-14', ${sql.json({ ipuclari: ["tema", "kilit", "kilit", "kilit", "kilit", "kilit"] })})`;
+  const c = istemci();
+  const h = hesapBaslat({ supabase: c, oyunId: "deneme", depo: bellekDepo() });
+  const anonId = await h.anonimGir();
+  await sql`insert into ortak.denemeler (oyun_id, kullanici_id, anahtar, durum)
+            values ('deneme', ${anonId}, 'gunluk:2026-11-14', ${sql.json({ ipuclari: ["kilit", "harf", "harf"] })})`;
+  await h.disGiris(() => c.auth.signInWithPassword({ email: k.k.eposta, password: k.k.parola }));
+  const [d] = await sql`select durum from ortak.denemeler where kullanici_id = ${k.id} and anahtar = 'gunluk:2026-11-14'`;
+  const say = (l: string[]) => l.reduce<Record<string, number>>((s, x) => ({ ...s, [x]: (s[x] ?? 0) + 1 }), {});
+  // her tür iki listeden hangisinde çoksa o kadar: kilit max(5,1)=5, tema 1, harf 2
+  assert.deepEqual(say(d!.durum.ipuclari), { kilit: 5, tema: 1, harf: 2 });
+});
+
 test("hile şikâyeti adı değiştirmez, inceleme için kalır; bu oyundan sil şikâyetleri siler", async () => {
   const hedef = await adli("Hileci");
   for (let i = 0; i < 4; i++) await (await kalici()).h.sikayetEt(hedef.ad, "hile");
