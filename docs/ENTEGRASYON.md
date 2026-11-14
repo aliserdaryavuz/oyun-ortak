@@ -283,6 +283,8 @@ Alanların anlamı:
 
 ## Testler
 
+Geçişin başında ve sonunda oyun `_ortak/OYUN_DENETIMI.md` denetiminden geçer; sonuç oyunun `docs/DENETIM.md` dosyasına kanıtla yazılır. Kuralın belgede yazılı olması uygulandığı anlamına gelmez.
+
 Bu depo:
 - `npm test`: istemci, sunucusuz.
 - `npm run test:sunucu`: yerel Supabase'e karşı.
