@@ -252,11 +252,11 @@ otp_expiry = 3600
 # Uncomment to customize email template
 # Giriş kodu (6 hane) şablonu: yeni kullanıcıda "confirmation", var olanda "magic_link" gider.
 [auth.email.template.magic_link]
-subject = "Giriş kodunuz"
+subject = "ASYWorks giriş kodunuz"
 content_path = "./supabase/templates/giris-kodu.html"
 
 [auth.email.template.confirmation]
-subject = "Giriş kodunuz"
+subject = "ASYWorks giriş kodunuz"
 content_path = "./supabase/templates/giris-kodu.html"
 
 # [auth.email.template.invite]
@@ -465,7 +465,7 @@ additional_redirect_urls = [
 enable_confirmations = true
 secure_password_change = true
 
-# Giriş kodu e-postası Resend üzerinden. Geçici gönderen halkakelime.com; ortak alan adı alınınca değişir.
+# Giriş kodu e-postası Resend üzerinden, giris@asyworks.com (ASYWorks) adıyla.
 # Anahtar depoda değil: kullanıcı klasöründeki .oyun-ortak/resend.env içindeki RESEND_API_KEY.
 # Türkçe kod şablonu (yukarıdaki [auth.email.template.*]) SMTP ile birlikte buluta da gider.
 [remotes.canli.auth.email.smtp]
@@ -474,8 +474,8 @@ host = "smtp.resend.com"
 port = 465
 user = "resend"
 pass = "env(RESEND_API_KEY)"
-admin_email = "giris@halkakelime.com"
-sender_name = "Halka Kelime"
+admin_email = "giris@asyworks.com"
+sender_name = "ASYWorks"
 
 # Google ile giriş. Sır depoda değil: kullanıcı klasöründeki .oyun-ortak/google.env içindeki GOOGLE_CLIENT_SECRET,
 # gönderim anında ortamdan okunur. Android yerel girişinin istemci kimlikleri ileride client_id'ye virgülle eklenir.
@@ -508,7 +508,7 @@ additional_redirect_urls = ["http://127.0.0.1:5173/**", "http://localhost:5173/*
 enable_confirmations = true
 secure_password_change = true
 
-# Giriş kodu e-postası Resend üzerinden. Geçici gönderen halkakelime.com; ortak alan adı alınınca değişir.
+# Giriş kodu e-postası Resend üzerinden, giris@asyworks.com (ASYWorks) adıyla.
 # Anahtar depoda değil: kullanıcı klasöründeki .oyun-ortak/resend.env içindeki RESEND_API_KEY.
 # Türkçe kod şablonu (yukarıdaki [auth.email.template.*]) SMTP ile birlikte buluta da gider.
 [remotes.test.auth.email.smtp]
@@ -517,8 +517,8 @@ host = "smtp.resend.com"
 port = 465
 user = "resend"
 pass = "env(RESEND_API_KEY)"
-admin_email = "giris@halkakelime.com"
-sender_name = "Halka Kelime"
+admin_email = "giris@asyworks.com"
+sender_name = "ASYWorks"
 
 # Google ile giriş. Sır depoda değil: kullanıcı klasöründeki .oyun-ortak/google.env içindeki GOOGLE_CLIENT_SECRET,
 # gönderim anında ortamdan okunur. Android yerel girişinin istemci kimlikleri ileride client_id'ye virgülle eklenir.
